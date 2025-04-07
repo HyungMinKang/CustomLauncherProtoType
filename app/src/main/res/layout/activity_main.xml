@@ -64,6 +64,7 @@
 
         <!-- 콘텐츠 영역 -->
         <FrameLayout
+            android:background="#000"
             android:id="@+id/main_browse_fragment"
             android:layout_width="0dp"
             android:layout_height="0dp"

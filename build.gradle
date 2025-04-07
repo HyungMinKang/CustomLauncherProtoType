@@ -1,10 +1,21 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    id 'com.android.application' version '7.2.0-alpha07' apply false
-    id 'com.android.library' version '7.2.0-alpha07' apply false
-    id 'org.jetbrains.kotlin.android' version '1.7.10' apply false
-}
+//// Top-level build file where you can add configuration options common to all sub-projects/modules.
+//plugins {
+//    id 'com.android.application' version '7.2.2' apply false
+//    id 'com.android.library' version '7.2.2' apply false
+//    id 'org.jetbrains.kotlin.android' version '1.7.10' apply false
+//}
+//
+//task clean(type: Delete) {
+//    delete rootProject.buildDir
+//}
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0" // Kotlin 최신 버전 예시
+    }
 }

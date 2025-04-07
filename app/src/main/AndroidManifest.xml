@@ -4,7 +4,9 @@
     package="com.example.customerlauncher">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
 
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -14,12 +16,15 @@
         android:required="true" />
 
     <application
+        android:name=".ui.CustomerLauncherApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:name=".ui.CustomerLauncherApplication"
         android:theme="@style/Theme.CustomerLauncher">
+        <activity
+            android:name=".ui.main.ContentFragment"
+            android:exported="false" />
         <activity
             android:name=".ui.main.MainActivity"
             android:banner="@drawable/app_icon_your_company"
@@ -30,6 +35,7 @@
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />

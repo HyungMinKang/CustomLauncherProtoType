@@ -121,4 +121,5 @@ public class CustomTitleView extends RelativeLayout implements TitleViewAdapter.
     public TitleViewAdapter getTitleViewAdapter() {
         return mTitleViewAdapter;
     }
+
 }
