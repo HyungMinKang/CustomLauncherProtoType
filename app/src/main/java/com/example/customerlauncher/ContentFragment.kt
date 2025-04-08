@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.leanback.widget.HorizontalGridView
+import com.example.customerlauncher.ui.main.ImageAdapter
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +23,9 @@ class ContentFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private lateinit var imageGridView: HorizontalGridView
+    private var imageAdapter: ImageAdapter? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -34,7 +39,29 @@ class ContentFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_content, container, false)
+        val view = inflater.inflate(R.layout.fragment_content, container, false)
+        imageGridView = view.findViewById(R.id.imageGridView)
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // 이미지 데이터 생성 (실제 데이터로 대체)
+        val imageList: List<ImageAdapter.ImageData> = generateImageList()
+        imageAdapter = ImageAdapter(imageList)
+        imageGridView.adapter = imageAdapter
+
+        // 초기 포커스 설정
+        imageGridView.requestFocus()
+    }
+
+    private fun generateImageList(): List<ImageAdapter.ImageData> {
+        val list = mutableListOf<ImageAdapter.ImageData>()
+        for (i in 0 until 20) {
+            list.add(ImageAdapter.ImageData("Image ${i + 1}"))
+        }
+        return list
     }
 
     companion object {
@@ -46,7 +73,6 @@ class ContentFragment : Fragment() {
          * @param param2 Parameter 2.
          * @return A new instance of fragment ContentFragment.
          */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             ContentFragment().apply {
