@@ -9,22 +9,19 @@
     android:background="#8BC34A"
     >
 
-    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="content" />
+
     <androidx.leanback.widget.HorizontalGridView
-        android:id="@+id/imageGridView"
+        android:id="@+id/contentGridView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView" app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="horizontal" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="content" />
-
-
-
+        android:orientation="horizontal"/>
 
 </FrameLayout>
