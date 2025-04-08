@@ -10,7 +10,6 @@ import com.example.customerlauncher.ui.main.ContentAdapter
 import com.example.customerlauncher.ui.main.ContentAdapter.ContentData
 
 class ContentFragment : Fragment() {
-    // ... (기존 코드)
 
     private lateinit var videoGridView: HorizontalGridView
     private var contentAdapter: ContentAdapter? = null
@@ -31,6 +30,9 @@ class ContentFragment : Fragment() {
         contentAdapter = ContentAdapter(contentList)
         videoGridView.adapter = contentAdapter
 
+        // HorizontalGridView의 크기가 고정되어 있다면 성능 향상을 위해 설정
+        videoGridView.setHasFixedSize(true)
+
         videoGridView.requestFocus()
     }
 
@@ -46,11 +48,7 @@ class ContentFragment : Fragment() {
         list.add(ContentData("android.resource://${requireContext().packageName}/${R.raw.test_video}", "Test Video 8"))
         list.add(ContentData("android.resource://${requireContext().packageName}/${R.raw.test_video}", "Test Video 9"))
         list.add(ContentData("android.resource://${requireContext().packageName}/${R.raw.test_video}", "Test Video 10"))
-        // ... 더 많은 비디오 추가
-        return list
-    }
 
-    companion object {
-        // ...
+        return list
     }
 }
