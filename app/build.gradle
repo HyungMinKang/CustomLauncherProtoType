@@ -30,6 +30,10 @@ android {
         }
     }
 
+    buildFeatures {
+        aidl true
+    }
+
     viewBinding {
         enabled = true
     }

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@android:color/black">
+
+    <!-- R 조절 -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Red"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/btn_r_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:nextFocusRight="@+id/value_r"
+            android:nextFocusDown="@+id/btn_g_down" />
+
+        <EditText
+            android:id="@+id/value_r"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:inputType="number"
+            android:background="@android:color/transparent"
+            android:nextFocusLeft="@+id/btn_r_down"
+            android:nextFocusRight="@+id/btn_r_up"
+            android:nextFocusDown="@+id/value_g" />
+
+        <Button
+            android:id="@+id/btn_r_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+"
+            android:nextFocusLeft="@+id/value_r"
+            android:nextFocusDown="@+id/btn_g_up" />
+    </LinearLayout>
+
+    <!-- G 조절 -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Green"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/btn_g_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:nextFocusRight="@+id/value_g"
+            android:nextFocusDown="@+id/btn_b_down"
+            android:nextFocusUp="@+id/btn_r_down" />
+
+        <EditText
+            android:id="@+id/value_g"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:inputType="number"
+            android:background="@android:color/transparent"
+            android:nextFocusLeft="@+id/btn_g_down"
+            android:nextFocusRight="@+id/btn_g_up"
+            android:nextFocusDown="@+id/value_b"
+            android:nextFocusUp="@+id/value_r" />
+
+        <Button
+            android:id="@+id/btn_g_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+"
+            android:nextFocusLeft="@+id/value_g"
+            android:nextFocusDown="@+id/btn_b_up"
+            android:nextFocusUp="@+id/btn_r_up" />
+    </LinearLayout>
+
+    <!-- B 조절 -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Blue"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/btn_b_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:nextFocusRight="@+id/value_b"
+            android:nextFocusUp="@+id/btn_g_down" />
+
+        <EditText
+            android:id="@+id/value_b"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:inputType="number"
+            android:background="@android:color/transparent"
+            android:nextFocusLeft="@+id/btn_b_down"
+            android:nextFocusRight="@+id/btn_b_up"
+            android:nextFocusUp="@+id/value_g" />
+
+        <Button
+            android:id="@+id/btn_b_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+"
+            android:nextFocusLeft="@+id/value_b"
+            android:nextFocusUp="@+id/btn_g_up" />
+    </LinearLayout>
+</LinearLayout>
