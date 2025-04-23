@@ -41,6 +41,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.text.InputType
 import android.text.Spanned
+import com.example.customerlauncher.ContentFragment
+
+interface OnTabChangeRequestListener {
+    fun onRequestTabChange(tab: String)
+}
+
+interface OnLedColorChangeListener {
+    fun onRequestChangeBackground(color: Int)
+}
 
 
 class MainFragment : BrowseSupportFragment() {
@@ -56,7 +65,8 @@ class MainFragment : BrowseSupportFragment() {
     private var r = 0
     private var g = 0
     private var b = 0
-
+    private var tabChangeListener: OnTabChangeRequestListener? = null
+    private var backgroundChangeListener: OnLedColorChangeListener? = null
     private val adcHandler = Handler(Looper.getMainLooper())
     private val adcJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + adcJob)
@@ -70,7 +80,15 @@ class MainFragment : BrowseSupportFragment() {
     }
     private lateinit var handler: Handler
 
-
+    override fun onAttach(context: android.content.Context) {
+        super.onAttach(context)
+        if (context is OnTabChangeRequestListener && context is OnLedColorChangeListener) {
+            tabChangeListener = context
+            backgroundChangeListener = context
+        } else {
+            throw IllegalStateException("Activity must implement both interfaces")
+        }
+    }
     @Deprecated("Deprecated in Java")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -136,11 +154,12 @@ class MainFragment : BrowseSupportFragment() {
 
     private fun applyLedColor() {
         ledService?.setColor(r, g, b)
-        requireActivity().findViewById<View>(R.id.root_layout)?.setBackgroundColor(Color.rgb(r, g, b))
+        val color = Color.rgb(r, g, b)
+        backgroundChangeListener?.onRequestChangeBackground(color)
     }
 
     private fun showBrightnessDialog() {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_brightness_control, null)
+        val dialogView = LayoutInflater.from(requireActivity()).inflate(R.layout.dialog_brightness_control, null)
 
         val inputR = dialogView.findViewById<EditText>(R.id.value_r)
         val inputG = dialogView.findViewById<EditText>(R.id.value_g)
@@ -235,6 +254,8 @@ class MainFragment : BrowseSupportFragment() {
         contentTv.isFocusable = true
         contentTv.isFocusableInTouchMode = true
         contentTv.requestFocus()
+        //tabChangeListener?.onRequestTabChange("CONTENT")
+
     }
     /*
     RCU 버튼 입력시 추가 처리 상항
@@ -314,6 +335,15 @@ class MainFragment : BrowseSupportFragment() {
         content.applyFocusAnimation()
         setting.applyFocusAnimation()
         ott.applyFocusAnimation()
+        content.setOnClickListener {
+            tabChangeListener?.onRequestTabChange("CONTENT")
+        }
+        setting.setOnClickListener {
+            tabChangeListener?.onRequestTabChange("SETTING")
+        }
+        ott.setOnClickListener {
+            tabChangeListener?.onRequestTabChange("OTT")
+        }
     }
 
     /*
