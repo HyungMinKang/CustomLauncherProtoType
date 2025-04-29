@@ -34,6 +34,11 @@ android {
         aidl true
     }
 
+    sourceSets {
+        main {
+            aidl.srcDirs = ['src/main/aidl']
+        }
+    }
     viewBinding {
         enabled = true
     }
@@ -42,6 +47,7 @@ android {
         //noinspection DataBindingWithoutKapt
         enabled = true
     }
+
 }
 
 dependencies {
