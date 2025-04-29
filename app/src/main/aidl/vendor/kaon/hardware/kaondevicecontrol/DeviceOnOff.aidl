@@ -17,21 +17,8 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package vendor.kaon.hardware.kaondevicecontrol;
-@VintfStability
-interface IKaonDeviceControl {
-  void ledOff(vendor.kaon.hardware.kaondevicecontrol.LedColor in_color);
-  void ledOn(vendor.kaon.hardware.kaondevicecontrol.LedColor in_color);
-  void startBreathingEffect(vendor.kaon.hardware.kaondevicecontrol.LedColor color, int ledPower, float interval);
-  void stopBreathingEffect();
-  void switchLedColorsOnDeviceState(in vendor.kaon.hardware.kaondevicecontrol.DeviceOnOff state, vendor.kaon.hardware.kaondevicecontrol.IKaonCallbackPower callback);
-  void handleOnRcuPress();
-  void handleManualPairing();
-  void handlePulseLedFrom15To100(in vendor.kaon.hardware.kaondevicecontrol.LedColor color);
-  void setAndroidBootCompleted();
-  void endPairingRCU();
-  void startRedLedBlinkError();
-  void stopRedLedBlinkError();
-  void stopRedLedBlinkHdmiOff();
-  void setConnectStatus(int status, boolean value);
-  void setBrightness(vendor.kaon.hardware.kaondevicecontrol.LedColor color, int brightness);
+@Backing(type="int") @VintfStability
+enum DeviceOnOff {
+  OFF,
+  ON,
 }
