@@ -48,6 +48,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:nextFocusRight="@id/dashboard_container"
+                android:nextFocusLeft="@id/dashboard_container"
+                android:nextFocusUp="@id/btn_driver"
+                android:nextFocusDown="@id/fragment_container"
                 android:focusable="true"
                 android:focusableInTouchMode="true" />
 
@@ -58,18 +62,24 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:focusable="true"
+                android:nextFocusLeft="@id/weather_card"
+                android:nextFocusUp="@id/btn_driver"
+                android:nextFocusRight="@id/weather_card"
+                android:nextFocusDown="@id/fragment_container"
                 android:focusableInTouchMode="true"
                 android:layout_marginStart="24dp" />
         </LinearLayout>
 
-        <!-- 콘텐츠 영역 -->
+        <!-- 콘텐츠 영역 → ID 변경 -->
         <FrameLayout
-            android:background="#000"
-            android:id="@+id/main_browse_fragment"
+            android:id="@+id/fragment_container"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:nextFocusUp="@id/weather_card"
             android:focusable="true"
             android:focusableInTouchMode="true"
+            android:descendantFocusability="afterDescendants"
+            android:background="@android:color/transparent"
             app:layout_constraintTop_toBottomOf="@id/top_info_row"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

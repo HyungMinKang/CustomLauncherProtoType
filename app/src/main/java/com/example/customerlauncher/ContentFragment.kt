@@ -33,7 +33,7 @@ class ContentFragment : Fragment() {
         // HorizontalGridView의 크기가 고정되어 있다면 성능 향상을 위해 설정
         videoGridView.setHasFixedSize(true)
 
-        videoGridView.requestFocus()
+        //videoGridView.requestFocus()
     }
 
     private fun generateContentList(): List<ContentData> {

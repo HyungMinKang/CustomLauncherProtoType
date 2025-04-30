@@ -6,10 +6,10 @@
     android:layout_marginTop="60dp"
     android:focusable="true"
     android:padding="5dp"
-
     android:clickable="true"
-    android:nextFocusUp="@id/content_tv"
-    android:nextFocusDown="@id/content_tv"
+    android:nextFocusUp="@id/btn_driver"
+    android:nextFocusLeft="@id/dashboard_container"
+    android:nextFocusDown="@id/fragment_container"
     android:background="@drawable/focus_selector"
     android:focusableInTouchMode="true"
     android:layout_marginStart="24dp">
