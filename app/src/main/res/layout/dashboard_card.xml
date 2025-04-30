@@ -6,11 +6,9 @@
     android:padding="10dp"
     android:orientation="vertical"
     android:nextFocusDown="@id/fragment_container"
-
     android:focusable="true"
     android:focusableInTouchMode="true"
     >
-
 
     <!-- 네트워크 상태 -->
     <TextView

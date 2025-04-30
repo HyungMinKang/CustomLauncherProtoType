@@ -7,7 +7,7 @@
     android:focusable="true"
     android:padding="5dp"
     android:clickable="true"
-    android:nextFocusUp="@id/btn_red"
+    android:nextFocusUp="@id/btn_driver"
     android:nextFocusLeft="@id/dashboard_container"
     android:nextFocusDown="@id/fragment_container"
     android:background="@drawable/focus_selector"

@@ -33,7 +33,7 @@
         android:padding="8dp"
         android:nextFocusLeft="@id/ott_tv"
         android:nextFocusRight="@id/setting_tv"
-        android:nextFocusDown="@id/btn_red"
+        android:nextFocusDown="@id/btn_driver"
         android:drawableStart="@drawable/ic_baseline_play_arrow_24"
         app:layout_constraintBottom_toBottomOf="@id/title_tv"
         />
@@ -44,7 +44,7 @@
         android:padding="8dp"
         android:nextFocusLeft="@id/content_tv"
         android:nextFocusRight="@id/ott_tv"
-        android:nextFocusDown="@id/btn_red"
+        android:nextFocusDown="@id/btn_driver"
         android:id="@+id/setting_tv"
         android:focusable="true"
         android:focusableInTouchMode="true"
@@ -67,7 +67,7 @@
         android:clickable="true"
         android:nextFocusLeft="@id/setting_tv"
         android:nextFocusRight="@id/content_tv"
-        android:nextFocusDown="@id/btn_red"
+        android:nextFocusDown="@id/btn_driver"
         android:background="@drawable/focus_selector"
         app:layout_constraintLeft_toRightOf="@id/setting_tv"
         app:layout_constraintTop_toTopOf="@id/title_tv"
@@ -100,74 +100,33 @@
         app:layout_constraintTop_toBottomOf="@id/title_tv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
         android:layout_marginTop="8dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp">
 
         <Button
-            android:id="@+id/btn_red"
+            android:id="@+id/btn_driver"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="R"
-            android:layout_marginEnd="4dp"
+            android:text="Driver"
+            android:layout_marginEnd="8dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:nextFocusLeft="@id/tv_adc_value"
-            android:nextFocusRight="@id/btn_green"
-            android:nextFocusUp="@id/content_tv"
+            android:nextFocusRight="@id/btn_theme"
             android:nextFocusDown="@id/weather_card" />
 
         <Button
-            android:id="@+id/btn_green"
+            android:id="@+id/btn_theme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="G"
-            android:layout_marginEnd="4dp"
+            android:text="Theme"
+            android:layout_marginEnd="8dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:nextFocusLeft="@id/btn_red"
-            android:nextFocusRight="@id/btn_blue"
-            android:nextFocusUp="@id/setting_tv"
-            android:nextFocusDown="@id/weather_card" />
-
-        <Button
-            android:id="@+id/btn_blue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="B"
-            android:layout_marginEnd="4dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:nextFocusLeft="@id/btn_green"
-            android:nextFocusRight="@id/btn_brightness"
-            android:nextFocusUp="@id/ott_tv"
-            android:nextFocusDown="@id/weather_card" />
-
-        <Button
-            android:id="@+id/btn_brightness"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="밝기"
-            android:layout_marginEnd="4dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:nextFocusLeft="@id/btn_blue"
-            android:nextFocusRight="@id/btn_white"
-            android:nextFocusUp="@id/ott_tv"
-            android:nextFocusDown="@id/weather_card" />
-
-        <Button
-            android:id="@+id/btn_white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="WHITE"
-
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:nextFocusLeft="@id/btn_brightness"
+            android:nextFocusLeft="@id/btn_driver"
             android:nextFocusRight="@id/tv_adc_value"
-            android:nextFocusUp="@id/ott_tv"
-            android:nextFocusDown="@id/weather_card"/>
+            android:nextFocusDown="@id/weather_card" />
 
         <TextView
             android:id="@+id/tv_adc_value"
@@ -175,15 +134,12 @@
             android:layout_height="wrap_content"
             android:text="ADC: ---"
             android:textSize="16sp"
-            android:layout_marginStart="10dp"
             android:textColor="@android:color/white"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:nextFocusLeft="@id/btn_white"
-            android:nextFocusRight="@id/btn_red"
-            android:nextFocusUp="@id/ott_tv"
-            android:nextFocusDown="@id/weather_card"/>
+            android:nextFocusLeft="@id/btn_theme"
+            android:nextFocusRight="@id/btn_driver"
+            android:nextFocusDown="@id/weather_card" />
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,12 @@ package vendor.kaon.hardware.LedDriverControl;
 //@VintfStability
 interface ILedDriverControl {
     int getAdcValue();
-    //void et_setAllOff();
-    //void et_setRgb(int baseChannel, int red, int green, int blue);
-    void setColor(int red, int green, int blue);
+    void setLedColor(int red, int green, int blue);
+    void turnOffLed();
+    void adjustByAdc(int adcValue);
+    void setDriverType(String type);
+    void startAdcUpTest();
+    void startAdcDownTest();
+    void stopAdcTestMode();
+    void setLedBreathingConfig(int ledNum, int start, int stop, int jump, int duration);
 }
