@@ -17,7 +17,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package vendor.kaon.hardware.kaondevicecontrol;
-@VintfStability
+//@VintfStability
 interface IKaonCallbackPower {
   void onCompleted();
 }

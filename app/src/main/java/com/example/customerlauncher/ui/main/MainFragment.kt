@@ -36,7 +36,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import vendor.kaon.hardware.LedDriverControl.ILedDriverControl
+//import vendor.kaon.hardware.LedDriverControl.ILedDriverControl
 import java.text.SimpleDateFormat
 import java.util.*
 import android.text.InputType
@@ -52,7 +52,7 @@ class MainFragment : BrowseSupportFragment() {
     private lateinit var mMetrics: DisplayMetrics
     private var mBackgroundTimer: Timer? = null
     private lateinit var clockView: TextView
-    private var ledService: ILedDriverControl? = null
+  //  private var ledService: ILedDriverControl? = null
     private var r = 0
     private var g = 0
     private var b = 0
@@ -90,15 +90,15 @@ class MainFragment : BrowseSupportFragment() {
 
     @SuppressLint("PrivateApi")
     private fun connectAidlService() {
-        try {
-            val smClass = Class.forName("android.os.ServiceManager")
-            val getService = smClass.getMethod("getService", String::class.java)
-            val binder = getService.invoke(null, "vendor.kaon.hardware.LedDriverControl.ILedDriverControl/default") as IBinder
-            ledService = ILedDriverControl.Stub.asInterface(binder)
-            Log.d("LED", "AIDL service connected")
-        } catch (e: Exception) {
-            Log.e("LED", "Failed to connect to AIDL service", e)
-        }
+//        try {
+//            val smClass = Class.forName("android.os.ServiceManager")
+//            val getService = smClass.getMethod("getService", String::class.java)
+//            val binder = getService.invoke(null, "vendor.kaon.hardware.LedDriverControl.ILedDriverControl/default") as IBinder
+//            ledService = ILedDriverControl.Stub.asInterface(binder)
+//            Log.d("LED", "AIDL service connected")
+//        } catch (e: Exception) {
+//            Log.e("LED", "Failed to connect to AIDL service", e)
+//        }
     }
 
     private fun setupLedControls() {
@@ -135,7 +135,7 @@ class MainFragment : BrowseSupportFragment() {
     }
 
     private fun applyLedColor() {
-        ledService?.setColor(r, g, b)
+        //ledService?.setColor(r, g, b)
         requireActivity().findViewById<View>(R.id.root_layout)?.setBackgroundColor(Color.rgb(r, g, b))
     }
 
@@ -220,8 +220,8 @@ class MainFragment : BrowseSupportFragment() {
             val adcTextView = requireActivity().findViewById<TextView>(R.id.tv_adc_value)
             while (true) {
                 try {
-                    val adc = ledService?.getAdcValue() ?: -1
-                    adcTextView.text = "ADC: $adc"
+          //          val adc = ledService?.getAdcValue() ?: -1
+           //         adcTextView.text = "ADC: $adc"
                 } catch (e: Exception) {
                     adcTextView.text = "ADC: ERR"
                 }
