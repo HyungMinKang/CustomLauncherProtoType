@@ -22,11 +22,24 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.CustomerLauncher">
-        <activity android:name=".VideoPlayerActivity"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
-<!--        <activity-->
-<!--            android:name=".ui.main.ContentFragment"-->
-<!--            android:exported="false" />-->
+        <receiver
+            android:name=".StandByModeReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.SCREEN_OFF" />
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".LedControlService" android:exported="false"/>
+
+        <activity
+            android:name=".VideoPlayerActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" /> <!-- <activity -->
+        <!-- android:name=".ui.main.ContentFragment" -->
+        <!-- android:exported="false" /> -->
         <activity
             android:name=".ui.main.MainActivity"
             android:banner="@drawable/app_icon_your_company"
@@ -37,7 +50,6 @@
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
