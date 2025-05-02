@@ -1,3 +1,8 @@
+<layout>
+    <data>
+
+    </data>
+
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/weatherCard"
@@ -7,7 +12,7 @@
     android:focusable="true"
     android:padding="5dp"
     android:clickable="true"
-    android:nextFocusUp="@id/btn_driver"
+    android:nextFocusUp="@id/iv_content"
     android:nextFocusLeft="@id/dashboard_container"
     android:nextFocusDown="@id/fragment_container"
     android:background="@drawable/focus_selector"
@@ -89,3 +94,4 @@
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>
+</layout>
