@@ -3,7 +3,10 @@ package com.example.customerlauncher.ui.main
 import WeatherThemeManager.getThemeForWeather
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Build
@@ -11,6 +14,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -19,6 +23,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -30,11 +35,12 @@ import com.airbnb.lottie.LottieAnimationView
 import com.example.customerlauncher.ContentFragment
 import com.example.customerlauncher.OttFragment
 import com.example.customerlauncher.R
-import com.example.customerlauncher.SettingFragment
-import com.example.customerlauncher.databinding.ActivityMainBinding
-import com.example.customerlauncher.databinding.CustomTitleviewBinding
-import com.example.customerlauncher.databinding.DashboardCardBinding
-import com.example.customerlauncher.databinding.WeatherCardBinding
+import com.example.customerlauncher.SettingSidePanelFragment
+import android.database.Cursor
+import android.media.tv.TvContract
+import android.media.tv.TvInputManager
+import android.net.Uri
+
 import com.example.customerlauncher.domain.model.WeatherInfo
 import com.example.customerlauncher.domain.model.WeatherTheme
 import com.example.customerlauncher.ui.dashboard.DashboardDataFragment
@@ -52,7 +58,7 @@ import kotlin.text.format
 
 class MainActivity : FragmentActivity() {
 
-    private lateinit var ledService: ILedDriverControl
+    lateinit var ledService: ILedDriverControl
     private val viewModel: HomeViewModel by inject()
     private var lastGroup = -1
     private val themeCodes = listOf(200, 300, 500, 600, 700, 800, 801)
@@ -63,7 +69,6 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         // 초기 화면 ContentFragment
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
@@ -75,7 +80,7 @@ class MainActivity : FragmentActivity() {
                 .commitNowAllowingStateLoss()
 
             Handler(Looper.getMainLooper()).postDelayed({
-                findViewById<ImageView>(R.id.iv_content).requestFocus()
+                findViewById<View>(R.id.btn_content).requestFocus()
             }, 100) // 100ms 정도 딜레이
         }
 
@@ -89,9 +94,10 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun setupTabClicks() {
-        findViewById<ImageView>(R.id.iv_content).setOnClickListener { changeFragment(ContentFragment()) }
-        findViewById<ImageView>(R.id.iv_setting).setOnClickListener { changeFragment(SettingFragment()) }
-        findViewById<ImageView>(R.id.iv_ott).setOnClickListener { changeFragment(OttFragment()) }
+        findViewById<View>(R.id.btn_content).setOnClickListener { changeFragment(ContentFragment()) }
+        findViewById<View>(R.id.btn_setting).setOnClickListener {  val settingPanel = SettingSidePanelFragment()
+            settingPanel.show(supportFragmentManager, "SettingPanel") }
+        findViewById<View>(R.id.btn_ott).setOnClickListener { changeFragment(OttFragment()) }
     }
 
     private fun changeFragment(fragment: Fragment) {
@@ -104,7 +110,7 @@ class MainActivity : FragmentActivity() {
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_HOME -> {
-                findViewById<ImageView>(R.id.iv_content).apply {
+                findViewById<ImageView>(R.id.btn_content).apply {
                     requestFocus()
                     performClick()
                 }
@@ -112,7 +118,7 @@ class MainActivity : FragmentActivity() {
             }
 
             KeyEvent.KEYCODE_SETTINGS -> {
-                findViewById<ImageView>(R.id.iv_setting).apply {
+                findViewById<ImageView>(R.id.btn_setting).apply {
                     requestFocus()
                     performClick()
                 }
@@ -136,6 +142,12 @@ class MainActivity : FragmentActivity() {
 
             KeyEvent.KEYCODE_4 -> {
                 ledService.setLedColor(255, 255, 255) // 화이트
+                return true
+            }
+            KeyEvent.KEYCODE_9 -> {
+                logTvChannels()
+                logTvInputs()
+                logTvPrograms()
                 return true
             }
 
@@ -168,7 +180,7 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun startAdcUpdater() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             while (true) {
                 try {
                     val adc = ledService.getAdcValue()
@@ -284,8 +296,74 @@ class MainActivity : FragmentActivity() {
         handler.post(updateTimeRunnable)
     }
 
+    private fun logTvPrograms() {
+        val projection = arrayOf(
+            TvContract.Programs._ID,
+            TvContract.Programs.COLUMN_TITLE,
+            TvContract.Programs.COLUMN_CHANNEL_ID,
+            TvContract.Programs.COLUMN_START_TIME_UTC_MILLIS,
+            TvContract.Programs.COLUMN_END_TIME_UTC_MILLIS
+        )
+
+        val cursor = contentResolver.query(
+            TvContract.Programs.CONTENT_URI,
+            projection,
+            null,
+            null,
+            null
+        )
+
+        cursor?.use {
+            Log.d("TV_PROGRAM", "총 ${cursor.count}개의 프로그램:")
+            while (it.moveToNext()) {
+                val id = it.getLong(0)
+                val title = it.getString(1)
+                val channelId = it.getLong(2)
+                Log.d("TV_PROGRAM", "프로그램 ID: $id, 제목: $title, 채널ID: $channelId")
+            }
+        } ?: Log.d("TV_PROGRAM", "프로그램 정보를 가져올 수 없습니다 (null cursor)")
+    }
+
+    private fun logTvInputs() {
+        val tvInputManager = getSystemService(Context.TV_INPUT_SERVICE) as TvInputManager
+        val inputList = tvInputManager.tvInputList
+        Log.d("TV_INPUT", "총 ${inputList.size}개의 TV 입력 존재:")
+        inputList.forEach {
+            Log.d("TV_INPUT", "ID: ${it.id}, Label: ${it.loadLabel(this)}")
+        }
+    }
+    private fun logTvChannels() {
+        val projection = arrayOf(
+            TvContract.Channels._ID,
+            TvContract.Channels.COLUMN_DISPLAY_NAME,
+            TvContract.Channels.COLUMN_INPUT_ID,
+            TvContract.Channels.COLUMN_TYPE
+        )
+
+        val uri: Uri = TvContract.Channels.CONTENT_URI
+
+        val cursor: Cursor? = contentResolver.query(
+            uri,
+            projection,
+            null,  // selection
+            null,  // selectionArgs
+            null   // sortOrder
+        )
+
+        cursor?.use {
+            Log.d("TV_CHANNEL", "총 ${cursor.count}개의 채널을 찾음")
+            while (it.moveToNext()) {
+                val id = it.getLong(0)
+                val name = it.getString(1)
+                val inputId = it.getString(2)
+                val type = it.getString(3)
+                Log.d("TV_CHANNEL", "채널 ID: $id, 이름: $name, 입력ID: $inputId, 타입: $type")
+            }
+        } ?: Log.d("TV_CHANNEL", "채널 정보를 가져올 수 없습니다 (null cursor)")
+    }
+
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun setWeatherTheme(theme: WeatherTheme) {
+    fun setWeatherTheme(theme: WeatherTheme) {
         findViewById<View>(R.id.root_layout).background = theme.backgroundGradient
         findViewById<View>(R.id.weather_card).background = theme.cardGradient
         findViewById<View>(R.id.dashboard_container).setBackgroundColor(Color.TRANSPARENT)
@@ -297,7 +375,7 @@ class MainActivity : FragmentActivity() {
 
         val textColor = if (theme.isDarkText) Color.BLACK else Color.WHITE
         applyTextColorToAll(findViewById(R.id.root_layout), textColor)
-        applyIconColor(textColor)
+        applyIconColorToAll(findViewById(R.id.root_layout), textColor)
     }
 
 
@@ -312,11 +390,14 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun applyIconColor(color: Int) {
-        findViewById<ImageView>(R.id.iv_content).setColorFilter(color, PorterDuff.Mode.SRC_IN)
-        findViewById<ImageView>(R.id.iv_setting).setColorFilter(color, PorterDuff.Mode.SRC_IN)
-        findViewById<ImageView>(R.id.iv_ott).setColorFilter(color, PorterDuff.Mode.SRC_IN)
-        findViewById<ImageView>(R.id.iv_fav).setColorFilter(color, PorterDuff.Mode.SRC_IN)
+    fun applyIconColorToAll(root: View, color: Int) {
+        if (root is ImageView && root.drawable != null) {
+            root.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+        } else if (root is ViewGroup) {
+            for (i in 0 until root.childCount) {
+                applyIconColorToAll(root.getChildAt(i), color)
+            }
+        }
     }
 
     private fun View.applyFocusAnimation() {
@@ -330,10 +411,10 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun initTabFocusAndAnimation() {
-        val content = findViewById<ImageView>(R.id.iv_content)
-        val setting = findViewById<ImageView>(R.id.iv_setting)
-        val ott = findViewById<ImageView>(R.id.iv_ott)
-        val favorite = findViewById<ImageView>(R.id.iv_fav)
+        val content = findViewById<LinearLayout>(R.id.btn_content)
+        val setting = findViewById<LinearLayout>(R.id.btn_setting)
+        val ott = findViewById<LinearLayout>(R.id.btn_ott)
+        val favorite = findViewById<LinearLayout>(R.id.btn_favorite)
         val weatherCard = findViewById<View>(R.id.weather_card)
         val dashboardContainer = findViewById<View>(R.id.dashboard_container)
 
@@ -346,6 +427,8 @@ class MainActivity : FragmentActivity() {
         }
 
         content.requestFocus()
+
+
     }
 
     fun showDriverSelectDialog(context: Context) {

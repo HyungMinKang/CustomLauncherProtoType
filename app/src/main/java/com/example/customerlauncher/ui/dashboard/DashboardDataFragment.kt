@@ -43,7 +43,7 @@ class DashboardDataFragment : Fragment() {
 
         // 디바이스 정보
         val ip = getLocalIpAddress()
-        ipInfo.text = "IP: $ip\nModel"
+        ipInfo.text = "IP: $ip"
         // 저장 공간
         storageInfo.text = getStorageInfo()
 

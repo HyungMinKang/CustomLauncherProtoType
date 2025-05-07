@@ -1,0 +1,69 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/setting_scroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF202020">
+
+    <LinearLayout
+        android:id="@+id/menu_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- 기본 시스템 설정 항목 10개 -->
+        <include layout="@layout/item_setting_network" />
+        <include layout="@layout/item_setting_device_info" />
+        <include layout="@layout/item_setting_apps" />
+        <include layout="@layout/item_setting_storage" />
+        <include layout="@layout/item_setting_date" />
+        <include layout="@layout/item_setting_language" />
+>
+
+        <!-- 커스텀 항목: 현재 테마 및 자동 테마 설정 -->
+        <LinearLayout
+            android:id="@+id/btn_theme_info"
+            style="@style/SettingItemStyle">
+            <View
+                android:id="@+id/current_theme_color"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="#4DA7FF" />
+            <TextView
+                android:id="@+id/text_current_theme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="현재 테마: 맑음 (800)"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:layout_marginStart="16dp"
+                android:gravity="center_vertical" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/row_auto_theme_toggle"
+            style="@style/SettingItemStyle"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:clickable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:text="날씨 기반 테마 자동 적용"
+                android:textColor="@android:color/white"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_weight="1" />
+
+            <Switch
+                android:id="@+id/switch_auto_theme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@color/switch_thumb_color"
+                android:trackTint="@color/switch_track_color"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

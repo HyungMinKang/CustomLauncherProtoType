@@ -50,7 +50,7 @@
                 android:layout_weight="1"
                 android:nextFocusRight="@id/dashboard_container"
                 android:nextFocusLeft="@id/dashboard_container"
-                android:nextFocusUp="@id/iv_content"
+                android:nextFocusUp="@id/btn_content"
                 android:nextFocusDown="@id/fragment_container"
                 android:focusable="true"
                 android:focusableInTouchMode="true" />
@@ -63,7 +63,7 @@
                 android:layout_weight="1"
                 android:focusable="true"
                 android:nextFocusLeft="@id/weather_card"
-                android:nextFocusUp="@id/iv_content"
+                android:nextFocusUp="@id/btn_content"
                 android:nextFocusRight="@id/weather_card"
                 android:nextFocusDown="@id/fragment_container"
                 android:focusableInTouchMode="true"

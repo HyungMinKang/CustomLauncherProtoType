@@ -12,7 +12,7 @@
     android:focusable="true"
     android:padding="5dp"
     android:clickable="true"
-    android:nextFocusUp="@id/iv_content"
+    android:nextFocusUp="@id/btn_content"
     android:nextFocusLeft="@id/dashboard_container"
     android:nextFocusDown="@id/fragment_container"
     android:background="@drawable/focus_selector"

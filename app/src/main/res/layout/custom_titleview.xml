@@ -27,82 +27,145 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Content 아이콘 -->
-    <ImageView
-        android:id="@+id/iv_content"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:src="@drawable/ic_content"
+    <LinearLayout
+        android:id="@+id/btn_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:background="@drawable/focus_selector"
-        android:contentDescription="Content"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:clickable="true"
-        app:layout_constraintEnd_toStartOf="@id/iv_ott"
+        android:padding="8dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintEnd_toStartOf="@id/btn_ott"
+        app:layout_constraintStart_toEndOf="@id/title_tv"
         app:layout_constraintTop_toTopOf="@id/title_tv"
-        app:layout_constraintBaseline_toBottomOf="@id/title_tv"
-        android:layout_marginStart="24dp"
-        android:nextFocusRight="@id/iv_ott"
-        android:nextFocusLeft="@id/iv_setting"
-        android:nextFocusDown="@id/weather_card" />
+        app:layout_constraintBottom_toBottomOf="@id/title_tv"
+        android:nextFocusRight="@id/btn_ott"
+        android:nextFocusLeft="@id/btn_setting"
+        android:nextFocusDown="@id/weather_card">
 
-    <!-- OTT 아이콘 -->
-    <ImageView
-        android:id="@+id/iv_ott"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:src="@drawable/ic_ott"
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:id="@+id/iv_content"
+            android:src="@drawable/ic_content"
+            android:contentDescription="Content" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="콘텐츠"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btn_ott"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:background="@drawable/focus_selector"
-        android:contentDescription="OTT"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:clickable="true"
-        app:layout_constraintStart_toEndOf="@id/iv_content"
-        app:layout_constraintTop_toTopOf="@id/iv_content"
-        app:layout_constraintBottom_toBottomOf="@id/iv_content"
-        android:layout_marginStart="24dp"
-        android:nextFocusRight="@id/iv_fav"
-        android:nextFocusLeft="@id/iv_content"
-        android:nextFocusDown="@id/weather_card" />
+        android:padding="8dp"
+        app:layout_constraintEnd_toStartOf="@id/btn_favorite"
+        app:layout_constraintStart_toEndOf="@id/btn_content"
+        app:layout_constraintTop_toTopOf="@id/title_tv"
+        app:layout_constraintBottom_toBottomOf="@id/title_tv"
+        android:nextFocusRight="@id/btn_favorite"
+        android:nextFocusLeft="@id/btn_content"
+        android:nextFocusDown="@id/weather_card">
 
-    <!-- Favorite 아이콘 -->
-    <ImageView
-        android:id="@+id/iv_fav"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:src="@drawable/ic_favorite"
+        <ImageView
+            android:layout_width="36dp"
+            android:id="@+id/iv_ott"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_ott"
+             />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="OTT"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/btn_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:background="@drawable/focus_selector"
-        android:contentDescription="Favorite"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:clickable="true"
-        app:layout_constraintStart_toEndOf="@id/iv_ott"
-        app:layout_constraintTop_toTopOf="@id/iv_content"
-        app:layout_constraintBottom_toBottomOf="@id/iv_content"
-        android:layout_marginStart="24dp"
-        android:nextFocusRight="@id/iv_setting"
-        android:nextFocusLeft="@id/iv_ott"
-        android:nextFocusDown="@id/weather_card" />
+        android:padding="8dp"
+        app:layout_constraintEnd_toStartOf="@id/btn_setting"
+        app:layout_constraintTop_toTopOf="@id/title_tv"
+        app:layout_constraintBottom_toBottomOf="@id/title_tv"
+        android:nextFocusRight="@id/btn_setting"
+        android:nextFocusLeft="@id/btn_ott"
+        android:nextFocusDown="@id/weather_card">
 
-    <!-- Setting 아이콘 -->
-    <ImageView
-        android:id="@+id/iv_setting"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:src="@drawable/ic_setting"
+        <ImageView
+            android:layout_width="36dp"
+            android:id="@+id/iv_fav"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_favorite"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="즐겨찾기"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btn_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:background="@drawable/focus_selector"
-        android:contentDescription="Settings"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:clickable="true"
-        app:layout_constraintStart_toEndOf="@id/iv_fav"
-        app:layout_constraintTop_toTopOf="@id/iv_content"
-        app:layout_constraintBottom_toBottomOf="@id/iv_content"
-        app:layout_constraintEnd_toStartOf="@id/clock"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:nextFocusRight="@id/clock"
-        android:nextFocusLeft="@id/iv_fav"
-        android:nextFocusDown="@id/weather_card" />
+        android:padding="8dp"
+
+        app:layout_constraintTop_toTopOf="@id/title_tv"
+        app:layout_constraintStart_toEndOf="@id/btn_favorite"
+        app:layout_constraintBottom_toBottomOf="@id/title_tv"
+        android:nextFocusRight="@id/btn_content"
+        android:nextFocusLeft="@id/btn_favorite"
+        android:nextFocusDown="@id/weather_card">
+
+        <ImageView
+            android:id="@+id/iv_setting"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_setting"
+             />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="환경설정"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+
 
     <!-- 시계 (포커스 가능) -->
     <TextView
@@ -113,14 +176,10 @@
         android:textSize="18sp"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/title_view"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginEnd="24dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:nextFocusRight="@id/iv_content"
-        android:nextFocusLeft="@id/iv_setting"
-        android:nextFocusDown="@id/weather_card" />
+        android:layout_marginEnd="48dp"
+       />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

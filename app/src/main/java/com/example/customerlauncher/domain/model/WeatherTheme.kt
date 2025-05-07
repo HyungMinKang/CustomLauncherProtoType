@@ -9,6 +9,7 @@ data class WeatherTheme(
 )
 
 data class WeatherThemeWithLed(
+    val name: String,
     val theme: WeatherTheme,
     val ledColor: Triple<Int, Int, Int>  // LED에 보낼 RGB 값
 )
