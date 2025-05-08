@@ -1,145 +1,185 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout>
+    <data>
+
+    </data>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/title_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:padding="8dp"
     android:focusable="true"
-    android:focusableInTouchMode="true"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:focusableInTouchMode="true">
 
-    <!-- 타이틀 텍스트 -->
+    <!-- MZB STB 타이틀 (포커스 없음) -->
     <TextView
         android:id="@+id/title_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
+        android:text="MZB STB"
         android:textSize="24sp"
+        android:textColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:padding="16dp"
-        android:visibility="visible"
-        android:text="MZB STB" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
+    <!-- Content 아이콘 -->
+    <LinearLayout
+        android:id="@+id/btn_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Content"
-        android:id="@+id/content_tv"
+        android:orientation="horizontal"
+        android:background="@drawable/focus_selector"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:clickable="true"
-        android:background="@drawable/focus_selector"
-        app:layout_constraintLeft_toRightOf="@id/title_tv"
-        app:layout_constraintTop_toTopOf="@id/title_tv"
         android:padding="8dp"
-        android:nextFocusLeft="@id/ott_tv"
-        android:nextFocusRight="@id/setting_tv"
-        android:nextFocusDown="@id/btn_driver"
-        android:drawableStart="@drawable/ic_baseline_play_arrow_24"
-        app:layout_constraintBottom_toBottomOf="@id/title_tv"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Setting"
-        android:padding="8dp"
-        android:nextFocusLeft="@id/content_tv"
-        android:nextFocusRight="@id/ott_tv"
-        android:nextFocusDown="@id/btn_driver"
-        android:id="@+id/setting_tv"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:clickable="true"
-        android:background="@drawable/focus_selector"
-        app:layout_constraintLeft_toRightOf="@id/content_tv"
+        android:layout_marginStart="24dp"
+        app:layout_constraintEnd_toStartOf="@id/btn_ott"
+        app:layout_constraintStart_toEndOf="@id/title_tv"
         app:layout_constraintTop_toTopOf="@id/title_tv"
-        android:layout_marginLeft="30dp"
-        android:drawableStart="@drawable/ic_baseline_play_arrow_24"
         app:layout_constraintBottom_toBottomOf="@id/title_tv"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="OTT"
-        android:id="@+id/ott_tv"
-        android:focusable="true"
-        android:padding="8dp"
-        android:focusableInTouchMode="true"
-        android:clickable="true"
-        android:nextFocusLeft="@id/setting_tv"
-        android:nextFocusRight="@id/content_tv"
-        android:nextFocusDown="@id/btn_driver"
-        android:background="@drawable/focus_selector"
-        app:layout_constraintLeft_toRightOf="@id/setting_tv"
-        app:layout_constraintTop_toTopOf="@id/title_tv"
-        android:layout_marginLeft="30dp"
-        app:layout_constraintBottom_toBottomOf="@id/title_tv"
-        android:drawableStart="@drawable/ic_baseline_play_arrow_24"
-        />
+        android:nextFocusRight="@id/btn_ott"
+        android:nextFocusLeft="@id/btn_setting"
+        android:nextFocusDown="@id/weather_card">
 
-    <!-- 시계 (선택사항) -->
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:id="@+id/iv_content"
+            android:src="@drawable/ic_content"
+            android:contentDescription="Content" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="콘텐츠"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btn_ott"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/focus_selector"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true"
+        android:padding="8dp"
+        app:layout_constraintEnd_toStartOf="@id/btn_favorite"
+        app:layout_constraintStart_toEndOf="@id/btn_content"
+        app:layout_constraintTop_toTopOf="@id/title_tv"
+        app:layout_constraintBottom_toBottomOf="@id/title_tv"
+        android:nextFocusRight="@id/btn_favorite"
+        android:nextFocusLeft="@id/btn_content"
+        android:nextFocusDown="@id/weather_card">
+
+        <ImageView
+            android:layout_width="36dp"
+            android:id="@+id/iv_ott"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_ott"
+             />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="OTT"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/btn_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/focus_selector"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true"
+        android:padding="8dp"
+        app:layout_constraintEnd_toStartOf="@id/btn_setting"
+        app:layout_constraintTop_toTopOf="@id/title_tv"
+        app:layout_constraintBottom_toBottomOf="@id/title_tv"
+        android:nextFocusRight="@id/btn_setting"
+        android:nextFocusLeft="@id/btn_ott"
+        android:nextFocusDown="@id/weather_card">
+
+        <ImageView
+            android:layout_width="36dp"
+            android:id="@+id/iv_fav"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_favorite"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="즐겨찾기"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btn_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/focus_selector"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true"
+        android:padding="8dp"
+
+        app:layout_constraintTop_toTopOf="@id/title_tv"
+        app:layout_constraintStart_toEndOf="@id/btn_favorite"
+        app:layout_constraintBottom_toBottomOf="@id/title_tv"
+        android:nextFocusRight="@id/btn_content"
+        android:nextFocusLeft="@id/btn_favorite"
+        android:nextFocusDown="@id/weather_card">
+
+        <ImageView
+            android:id="@+id/iv_setting"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_setting"
+             />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="환경설정"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+
+
+    <!-- 시계 (포커스 가능) -->
     <TextView
         android:id="@+id/clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
+        android:text="12:00"
         android:textSize="18sp"
+        android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/title_tv"
-        app:layout_constraintBottom_toBottomOf="@id/title_tv"
-        android:layout_marginEnd="40dp"
-        android:text="12:00" />
-
-
-    <LinearLayout
-        android:id="@+id/led_control_row"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:focusable="false"
-        app:layout_constraintTop_toBottomOf="@id/title_tv"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:visibility="gone"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp">
-
-        <Button
-            android:id="@+id/btn_driver"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Driver"
-            android:layout_marginEnd="8dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:nextFocusRight="@id/btn_theme"
-            android:nextFocusDown="@id/weather_card" />
-
-        <Button
-            android:id="@+id/btn_theme"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Theme"
-            android:layout_marginEnd="8dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:nextFocusLeft="@id/btn_driver"
-            android:nextFocusRight="@id/tv_adc_value"
-            android:nextFocusDown="@id/weather_card" />
-
-        <TextView
-            android:id="@+id/tv_adc_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ADC: ---"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:nextFocusLeft="@id/btn_theme"
-            android:nextFocusRight="@id/btn_driver"
-            android:nextFocusDown="@id/weather_card" />
-    </LinearLayout>
+        app:layout_constraintTop_toTopOf="@id/title_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="48dp"
+       />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import com.example.customerlauncher.R
 import com.example.customerlauncher.domain.model.WeatherTheme
@@ -29,37 +30,26 @@ class DashboardDataFragment : Fragment() {
         return inflater.inflate(R.layout.dashboard_card, container, false)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val networkStatus = view.findViewById<TextView>(R.id.network_status)
-        val deviceInfo = view.findViewById<TextView>(R.id.device_info)
-        val storageInfo = view.findViewById<TextView>(R.id.storage_info)
+        val networkStatus = view.findViewById<TextView>(R.id.tv_network_status)
+        val ipInfo = view.findViewById<TextView>(R.id.tv_ip_address)
+        val storageInfo = view.findViewById<TextView>(R.id.tv_storage)
 
-        val appNetflix = view.findViewById<ImageView>(R.id.app_netflix)
-        val appYoutubeMusic = view.findViewById<ImageView>(R.id.app_playstore)
-        val appYoutube = view.findViewById<ImageView>(R.id.app_youtube)
-
-        setAppIcon(appNetflix, "com.netflix.ninja")
-        setAppIcon(appYoutube, "com.google.android.youtube.tv")
-        setAppIcon(appYoutubeMusic, "com.google.android.youtube.tvmusic")
         // 네트워크 상태
         networkStatus.text = getNetworkStatus()
 
         // 디바이스 정보
         val ip = getLocalIpAddress()
-        val model = Build.MODEL
-        val version = Build.DISPLAY
-        deviceInfo.text = "IP: $ip\nModel: $model\nBuild: $version"
+        ipInfo.text = "IP: $ip"
         // 저장 공간
         storageInfo.text = getStorageInfo()
 
-        // 앱 실행
-        appNetflix.setOnClickListener { launchApp("com.netflix.ninja") }
-        appYoutubeMusic.setOnClickListener { launchApp(" com.google.android.youtube.tvmusic") }
-        appYoutube.setOnClickListener { launchApp("com.google.android.youtube.tv") }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun getNetworkStatus(): String {
         val cm = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         Log.d("Dash", "${cm.activeNetwork}")

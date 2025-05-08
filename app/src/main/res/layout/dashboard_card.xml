@@ -1,73 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+    </data>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/layout_dashboard"
     android:padding="10dp"
     android:orientation="vertical"
+    android:gravity="start"
     android:nextFocusDown="@id/fragment_container"
     android:focusable="true"
     android:focusableInTouchMode="true"
     >
 
     <!-- 네트워크 상태 -->
-    <TextView
-        android:id="@+id/network_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Network State:"
-        android:textSize="16sp"
-        android:layout_marginBottom="8dp" />
-
-    <!-- 즐겨찾기 앱 (아이콘 3개 수평 정렬) -->
     <LinearLayout
-        android:id="@+id/favorite_apps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="24dp"
         android:layout_marginBottom="8dp">
 
         <ImageView
-            android:id="@+id/app_netflix"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="16dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:contentDescription="Netflix" />
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_eternet"
+            android:layout_marginEnd="8dp" />
 
-        <ImageView
-            android:id="@+id/app_playstore"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="16dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:contentDescription="Playstore" />
-
-        <ImageView
-            android:id="@+id/app_youtube"
-            android:layout_width="48dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:layout_height="48dp"
-            android:contentDescription="YouTube" />
+        <TextView
+            android:id="@+id/tv_network_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dashboard_tv_networkstatus"
+            android:textSize="14sp" />
     </LinearLayout>
 
-    <!-- 디바이스 정보 -->
-    <TextView
-        android:id="@+id/device_info"
+    <!-- 드라이버 종류 -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="IP: \nModel: KSTB6277\nBuild: v1.2.3"
-        android:textSize="14sp"
-        android:layout_marginBottom="4dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
 
-    <!-- 저장공간 정보 -->
-    <TextView
-        android:id="@+id/storage_info"
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_setting"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tv_driver_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dashboard_tv_driver"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- ADC 값 -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="저장공간:"
-        android:textSize="14sp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_brightness"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tv_adc_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dashboard_tv_adc"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- IP 주소 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_ip"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tv_ip_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dashboard_tv_ip"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- 저장공간 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_storage"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tv_storage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dashboard_tv_storage"
+            android:textSize="14sp" />
+    </LinearLayout>
 </LinearLayout>
+</layout>

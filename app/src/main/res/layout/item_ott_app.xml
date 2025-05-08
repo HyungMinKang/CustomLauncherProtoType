@@ -3,25 +3,25 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:padding="8dp"
+    android:gravity="center_horizontal"
     android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:padding="4dp">
+    android:focusableInTouchMode="true">
 
     <ImageView
-        android:id="@+id/thumbnailImageView"
-        android:layout_width="150dp"
-        android:layout_height="120dp"
-        android:scaleType="centerCrop"
-         />
+        android:id="@+id/appIcon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop" />
 
     <TextView
-        android:id="@+id/contentTitleTextView"
+        android:id="@+id/appName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Movie Title"
         android:textColor="@android:color/white"
         android:textSize="14sp"
-        android:paddingTop="4dp"
+        android:maxLines="1"
         android:ellipsize="end"
-        android:maxLines="1"/>
+        android:gravity="center"
+        android:layout_marginTop="4dp"/>
 </LinearLayout>
