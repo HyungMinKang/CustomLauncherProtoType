@@ -10,10 +10,11 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.customerlauncher.ContentFragment
 import com.example.customerlauncher.R
 import com.example.customerlauncher.VideoPlayerActivity
 
-class ContentAdapter(private val contentList: List<ContentData>) :
+class ContentAdapter(private val fragment: ContentFragment, private val contentList: List<ContentData>) :
     RecyclerView.Adapter<ContentAdapter.ContentViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentViewHolder {
@@ -25,11 +26,13 @@ class ContentAdapter(private val contentList: List<ContentData>) :
     override fun onBindViewHolder(holder: ContentViewHolder, position: Int) {
         val contentData = contentList[position]
         holder.titleTextView.text = contentData.title
+        holder.thumbnailImageView.setImageDrawable(null)
 
-        Glide.with(holder.thumbnailImageView.context)
-            .load(contentData.thumbnailUrl)
+        Glide.with(fragment)
+            .load(contentData.thumbnailUrl)  // 또는 thumbnailUrl
             .placeholder(R.drawable.placeholder)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .diskCacheStrategy(DiskCacheStrategy.ALL) // 🔁 캐시 비활성화
+            .skipMemoryCache(false)                     // 🔁 메모리 캐시도 비활성화
             .into(holder.thumbnailImageView)
 
         holder.itemView.setOnFocusChangeListener { v, hasFocus ->
@@ -48,6 +51,10 @@ class ContentAdapter(private val contentList: List<ContentData>) :
     }
 
     override fun getItemCount(): Int = contentList.size
+
+    override fun getItemViewType(position: Int): Int {
+        return position // ➜ 각 아이템마다 새로운 뷰타입 부여 → ViewHolder 재사용 방지
+    }
 
     class ContentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val thumbnailImageView: ImageView = itemView.findViewById(R.id.thumbnailImageView)

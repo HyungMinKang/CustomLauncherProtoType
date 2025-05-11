@@ -4,8 +4,6 @@ import WeatherThemeManager.getThemeForWeather
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.ComponentName
-import android.content.ContentUris
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -15,20 +13,17 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.provider.Settings
 import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -42,9 +37,8 @@ import android.media.tv.TvContract
 import android.media.tv.TvInputManager
 import android.net.Uri
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
-import com.example.customerlauncher.domain.model.FavoriteContent
+
 
 import com.example.customerlauncher.domain.model.WeatherInfo
 import com.example.customerlauncher.domain.model.WeatherTheme
@@ -442,7 +436,7 @@ class MainActivity : FragmentActivity() {
     }
 
     fun applyIconColorToAll(root: View, color: Int) {
-        if (root is ImageView && root.drawable != null) {
+        if (root is ImageView && root.id != R.id.thumbnailImageView && root.drawable != null) {
             root.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         } else if (root is ViewGroup) {
             for (i in 0 until root.childCount) {
@@ -451,35 +445,27 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun View.applyFocusAnimation() {
+    private fun View.applyFocusAnimation(scale: Float = 1.05f) {
         this.setOnFocusChangeListener { v, hasFocus ->
-            if (hasFocus) {
-                v.animate().scaleX(1.1f).scaleY(1.1f).setDuration(150).start()
-            } else {
-                v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(150).start()
-            }
+            v.animate()
+                .scaleX(if (hasFocus) scale else 1.0f)
+                .scaleY(if (hasFocus) scale else 1.0f)
+                .setDuration(150)
+                .start()
         }
     }
 
     private fun initTabFocusAndAnimation() {
         val content = findViewById<LinearLayout>(R.id.btn_content)
-        val setting = findViewById<LinearLayout>(R.id.btn_setting)
-        val ott = findViewById<LinearLayout>(R.id.btn_ott)
-        val favorite = findViewById<LinearLayout>(R.id.btn_favorite)
         val weatherCard = findViewById<View>(R.id.weather_card)
         val dashboardContainer = findViewById<View>(R.id.dashboard_container)
-
-        val allFocusableViews = listOf<View>(content, setting, ott, favorite, weatherCard, dashboardContainer)
-
+        val allFocusableViews = listOf<View>(weatherCard, dashboardContainer)
         allFocusableViews.forEach { view ->
             view.applyFocusAnimation()
             view.isFocusable = true
             view.isFocusableInTouchMode = true
         }
-
         content.requestFocus()
-
-
     }
 
     fun showDriverSelectDialog(context: Context) {
