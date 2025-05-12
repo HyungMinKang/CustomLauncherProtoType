@@ -19,7 +19,7 @@ object WeatherThemeManager {
                 ledColor = Triple(156, 39, 176)
                 bgStart = "#512DA8"; bgEnd = "#000000"
                 cardStart = "#D1C4E9"; cardEnd = "#B39DDB"
-                darkText = true
+                darkText = false
             }
             in 300..399 -> {
                 // 잔비 - 하늘 계열

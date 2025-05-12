@@ -1,6 +1,5 @@
 package com.example.customerlauncher
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -24,20 +23,6 @@ class ContentFragment : Fragment() {
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
-        videoGridView.post {
-            // adapter 갱신
-            contentAdapter?.notifyDataSetChanged()
-
-            // 🔽 첫 번째 아이템에 포커스 강제 요청
-            if (videoGridView.childCount > 0) {
-                videoGridView.getChildAt(0)?.requestFocus()
-            }
-        }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -50,19 +35,10 @@ class ContentFragment : Fragment() {
             ContentData("Dune", "https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4")
         )
 
-        contentAdapter = ContentAdapter(contentList)
+        contentAdapter = ContentAdapter(this,contentList)
         videoGridView.adapter = contentAdapter
         videoGridView.setHasFixedSize(true)
-//        videoGridView.viewTreeObserver.addOnGlobalLayoutListener {
-//            contentAdapter?.notifyDataSetChanged()
-//
-//            videoGridView.post {
-//                if (videoGridView.childCount > 0) {
-//                    videoGridView.getChildAt(0)?.requestFocus()
-//                }
-//            }
-//        }
-
-
     }
+
+
 }

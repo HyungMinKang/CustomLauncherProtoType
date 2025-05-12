@@ -3,6 +3,7 @@ package com.example.customerlauncher
 import WeatherThemeManager.getThemeForWeather
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -25,7 +26,8 @@ import com.example.customerlauncher.ui.main.MainActivity
 
 
 class SettingSidePanelFragment : DialogFragment() {
-
+    private lateinit var themeText: TextView
+    private lateinit var themeColor: View
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return Dialog(requireContext(), android.R.style.Theme_DeviceDefault_NoActionBar).apply {
             window?.apply {
@@ -42,7 +44,7 @@ class SettingSidePanelFragment : DialogFragment() {
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val prefs = requireContext().getSharedPreferences("setting", Context.MODE_PRIVATE)
         // 🔹 시스템 설정 인텐트 연결
         mapOf(
             R.id.btn_network to Settings.ACTION_WIFI_SETTINGS,
@@ -65,13 +67,13 @@ class SettingSidePanelFragment : DialogFragment() {
 
         // 🔹 현재 테마 정보 UI
         val themeRow = view.findViewById<View>(R.id.btn_theme_info)
-        val themeText = view.findViewById<TextView>(R.id.text_current_theme)
-        val themeColor = view.findViewById<View>(R.id.current_theme_color)
+        themeText = view.findViewById(R.id.text_current_theme)
+        themeColor = view.findViewById(R.id.current_theme_color)
         val switch = view.findViewById<Switch>(R.id.switch_auto_theme)
         val isAutoThemeEnabled = prefs.getBoolean("use_weather_theme", true)
         switch.isChecked = isAutoThemeEnabled
 
-// 초기 테마 표시
+        // 초기 테마 표시
         val themeCode = prefs.getInt("selected_theme_code", 800)
         val themeWithLed = getThemeForWeather(themeCode)
         themeText.text = "현재 테마: $themeCode (${themeWithLed.name})"
@@ -150,5 +152,18 @@ class SettingSidePanelFragment : DialogFragment() {
             themeWithLed.ledColor.second,
             themeWithLed.ledColor.third
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateThemeInfo()
+    }
+    fun updateThemeInfo(){
+        val prefs = requireContext().getSharedPreferences("setting", Context.MODE_PRIVATE)
+        val themeCode = prefs.getInt("selected_theme_code", 800)
+        val themeWithLed = getThemeForWeather(themeCode)
+
+        themeText.text = "현재 테마: $themeCode (${themeWithLed.name})"
+        themeColor.background = themeWithLed.theme.backgroundGradient
     }
 }

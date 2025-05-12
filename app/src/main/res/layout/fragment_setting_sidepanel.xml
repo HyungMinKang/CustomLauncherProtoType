@@ -10,8 +10,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        >
+        <TextView
+            android:id="@+id/text_setting_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="설정"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:gravity="center_vertical" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+
+            android:background="@android:color/darker_gray" />
         <!-- 기본 시스템 설정 항목 10개 -->
         <include layout="@layout/item_setting_network" />
         <include layout="@layout/item_setting_device_info" />
@@ -27,8 +43,8 @@
             style="@style/SettingItemStyle">
             <View
                 android:id="@+id/current_theme_color"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:background="#4DA7FF" />
             <TextView
                 android:id="@+id/text_current_theme"
@@ -36,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:text="현재 테마: 맑음 (800)"
                 android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 android:layout_marginStart="16dp"
                 android:gravity="center_vertical" />
         </LinearLayout>
@@ -54,7 +70,7 @@
                 android:textColor="@android:color/white"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 android:layout_weight="1" />
 
             <Switch

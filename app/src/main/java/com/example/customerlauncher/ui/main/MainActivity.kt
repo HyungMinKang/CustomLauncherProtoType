@@ -3,8 +3,7 @@ package com.example.customerlauncher.ui.main
 import WeatherThemeManager.getThemeForWeather
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.ContentUris
-import android.content.ContentValues
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -14,20 +13,17 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.provider.Settings
 import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -40,10 +36,14 @@ import android.database.Cursor
 import android.media.tv.TvContract
 import android.media.tv.TvInputManager
 import android.net.Uri
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+
 
 import com.example.customerlauncher.domain.model.WeatherInfo
 import com.example.customerlauncher.domain.model.WeatherTheme
 import com.example.customerlauncher.ui.dashboard.DashboardDataFragment
+import com.example.customerlauncher.ui.favorite.FavoriteFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -54,6 +54,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.jvm.java
 import kotlin.text.format
 
 class MainActivity : FragmentActivity() {
@@ -98,6 +99,7 @@ class MainActivity : FragmentActivity() {
         findViewById<View>(R.id.btn_setting).setOnClickListener {  val settingPanel = SettingSidePanelFragment()
             settingPanel.show(supportFragmentManager, "SettingPanel") }
         findViewById<View>(R.id.btn_ott).setOnClickListener { changeFragment(OttFragment()) }
+        findViewById<View>(R.id.btn_favorite).setOnClickListener { changeFragment(FavoriteFragment()) }
     }
 
     private fun changeFragment(fragment: Fragment) {
@@ -143,6 +145,12 @@ class MainActivity : FragmentActivity() {
             KeyEvent.KEYCODE_4 -> {
                 ledService.setLedColor(255, 255, 255) // 화이트
                 return true
+            }
+            KeyEvent.KEYCODE_5 ->{
+                val intent = Intent()
+                intent.component = ComponentName("com.example.posservice", "com.example.posservice.PoseService")
+                ContextCompat.startForegroundService(this, intent)
+                Toast.makeText(this, "PoseService 시작됨", Toast.LENGTH_SHORT).show()
             }
             KeyEvent.KEYCODE_9 -> {
                 logTvChannels()
@@ -205,19 +213,44 @@ class MainActivity : FragmentActivity() {
             viewModel.loadLocationInformation()
             viewModel.weatherInformationStateFlow.collect {
                 it?.let { info ->
+                    val prefs = getSharedPreferences("setting", Context.MODE_PRIVATE)
                     findViewById<View>(R.id.loading_overlay).visibility = View.GONE
-                    val themeWithLed = getThemeForWeather(info.weatherId)
-                    setWeatherTheme(themeWithLed.theme)
-                    ledService.setLedColor(
-                        themeWithLed.ledColor.first,
-                        themeWithLed.ledColor.second,
-                        themeWithLed.ledColor.third
-                    )
-                    currentThemeIndex = themeCodes.indexOfFirst { code ->
-                        info.weatherId in resolveWeatherCodeRange(code)
-                    }.takeIf { it >= 0 } ?: 0  // fallback to 0
+                    if (prefs.getBoolean("use_weather_theme", true)) {
+                        val themeWithLed = getThemeForWeather(info.weatherId)
+                        prefs.edit().putInt("selected_theme_code", info.weatherId).apply()
+                        setWeatherTheme(themeWithLed.theme)
+                        ledService.setLedColor(
+                            themeWithLed.ledColor.first,
+                            themeWithLed.ledColor.second,
+                            themeWithLed.ledColor.third
+                        )
+                        currentThemeIndex = themeCodes.indexOfFirst { code ->
+                            info.weatherId in resolveWeatherCodeRange(code)
+                        }.takeIf { it >= 0 } ?: 0  // fallback to 0
 
-                    updateWeatherCard(info)
+                        updateWeatherCard(info)
+                    }
+                    else {
+                        // ✅ 날씨 테마 비활성화 상태 → default 테마 사용
+                        val themeWithLed =
+                            getThemeForWeather(-1) // -1 or 0 or any code not matching predefined range
+                        prefs.edit().putInt("selected_theme_code", -1).apply()
+                        setWeatherTheme(themeWithLed.theme)
+                        ledService.setLedColor(
+                            themeWithLed.ledColor.first,
+                            themeWithLed.ledColor.second,
+                            themeWithLed.ledColor.third
+                        )
+                        currentThemeIndex = -1
+                        updateWeatherCard(
+                            info.copy(
+                                weatherId = -1,
+                                weather = "기본 테마 (수동)",
+                                city = "UNKNOWN",
+                                weatherIcon = "ic_default" // 필요시 기본 아이콘도 변경
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -250,16 +283,28 @@ class MainActivity : FragmentActivity() {
 
     private fun updateWeatherCard(info: WeatherInfo) {
 
-        val weatherCard = findViewById<View>(R.id.weather_card)
-        weatherCard.findViewById<TextView>(R.id.temperatureText).text = "${info.temp}°"
-        weatherCard.findViewById<TextView>(R.id.cityText).text = info.city
-        weatherCard.findViewById<TextView>(R.id.humidityText).text = "습도 ${info.humidity}%"
-        weatherCard.findViewById<TextView>(R.id.dateText).text = getLocalTimeFormat()
-        weatherCard.findViewById<TextView>(R.id.windText).text =
-            "바람: ${String.format("%.1f", info.windSpeed)} m/s"
-        weatherCard.findViewById<LottieAnimationView>(R.id.weatherIcon).apply {
-            setAnimation(R.raw.sunny)
-            playAnimation()
+        if(info.weatherId!=-1) {
+            val weatherCard = findViewById<View>(R.id.weather_card)
+            weatherCard.findViewById<TextView>(R.id.temperatureText).text = "${info.temp}°"
+            weatherCard.findViewById<TextView>(R.id.cityText).text = info.city
+            weatherCard.findViewById<TextView>(R.id.humidityText).text = "습도 ${info.humidity}%"
+            weatherCard.findViewById<TextView>(R.id.dateText).text = getLocalTimeFormat()
+            weatherCard.findViewById<TextView>(R.id.windText).text =
+                "바람: ${String.format("%.1f", info.windSpeed)} m/s"
+            weatherCard.findViewById<LottieAnimationView>(R.id.weatherIcon).apply {
+                setAnimation(R.raw.sunny)
+                playAnimation()
+            }
+        }
+        else{
+            val weatherCard = findViewById<View>(R.id.weather_card)
+            weatherCard.findViewById<TextView>(R.id.temperatureText).text = "정보를 가져올수 없습니다"
+            weatherCard.findViewById<TextView>(R.id.cityText).text = "정보를 가져올수 없습니다"
+            weatherCard.findViewById<TextView>(R.id.humidityText).text = "습도 정보를 가져올수 없습니다"
+            weatherCard.findViewById<TextView>(R.id.dateText).text = "정보를 가져올수 없습니다"
+            weatherCard.findViewById<TextView>(R.id.windText).text =
+                "바람: 정보를 가져올수 없습니다 "
+
         }
 
     }
@@ -391,7 +436,7 @@ class MainActivity : FragmentActivity() {
     }
 
     fun applyIconColorToAll(root: View, color: Int) {
-        if (root is ImageView && root.drawable != null) {
+        if (root is ImageView && root.id != R.id.thumbnailImageView && root.drawable != null) {
             root.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         } else if (root is ViewGroup) {
             for (i in 0 until root.childCount) {
@@ -400,35 +445,27 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun View.applyFocusAnimation() {
+    private fun View.applyFocusAnimation(scale: Float = 1.05f) {
         this.setOnFocusChangeListener { v, hasFocus ->
-            if (hasFocus) {
-                v.animate().scaleX(1.1f).scaleY(1.1f).setDuration(150).start()
-            } else {
-                v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(150).start()
-            }
+            v.animate()
+                .scaleX(if (hasFocus) scale else 1.0f)
+                .scaleY(if (hasFocus) scale else 1.0f)
+                .setDuration(150)
+                .start()
         }
     }
 
     private fun initTabFocusAndAnimation() {
         val content = findViewById<LinearLayout>(R.id.btn_content)
-        val setting = findViewById<LinearLayout>(R.id.btn_setting)
-        val ott = findViewById<LinearLayout>(R.id.btn_ott)
-        val favorite = findViewById<LinearLayout>(R.id.btn_favorite)
         val weatherCard = findViewById<View>(R.id.weather_card)
         val dashboardContainer = findViewById<View>(R.id.dashboard_container)
-
-        val allFocusableViews = listOf<View>(content, setting, ott, favorite, weatherCard, dashboardContainer)
-
+        val allFocusableViews = listOf<View>(weatherCard, dashboardContainer)
         allFocusableViews.forEach { view ->
             view.applyFocusAnimation()
             view.isFocusable = true
             view.isFocusableInTouchMode = true
         }
-
         content.requestFocus()
-
-
     }
 
     fun showDriverSelectDialog(context: Context) {
@@ -451,17 +488,25 @@ class MainActivity : FragmentActivity() {
             .show()
     }
 
+    @SuppressLint("CommitPrefEdits")
     @RequiresApi(Build.VERSION_CODES.N)
     private fun cycleToNextWeatherTheme() {
-        currentThemeIndex = (currentThemeIndex + 1) % themeCodes.size
-        val weatherCode = themeCodes[currentThemeIndex]
-        val themeWithLed = getThemeForWeather(weatherCode)
-        setWeatherTheme(themeWithLed.theme)
-        ledService.setLedColor(
-            themeWithLed.ledColor.first,
-            themeWithLed.ledColor.second,
-            themeWithLed.ledColor.third
-        )
+        val prefs = getSharedPreferences("setting", Context.MODE_PRIVATE)
+        if (prefs.getBoolean("use_weather_theme", true)) {
+            currentThemeIndex = (currentThemeIndex + 1) % themeCodes.size
+            val weatherCode = themeCodes[currentThemeIndex]
+            val themeWithLed = getThemeForWeather(weatherCode)
+            setWeatherTheme(themeWithLed.theme)
+            Log.d("TEST", weatherCode.toString())
+            Log.d("TEST", themeWithLed.name)
+            prefs.edit().putInt("selected_theme_code", weatherCode).apply()
+            Log.d("TEST" , prefs.getInt("selected_theme_code", 800).toString())
+            ledService.setLedColor(
+                themeWithLed.ledColor.first,
+                themeWithLed.ledColor.second,
+                themeWithLed.ledColor.third
+            )
+        }
     }
 
 }
