@@ -451,8 +451,14 @@ class MainActivity : FragmentActivity() {
             .setView(dialogView)
             .setPositiveButton("확인") { _, _ ->
                 val selected = spinner.selectedItem.toString()
+                val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
                 ledService.setDriverType(selected)
 
+                ledService.setLedColor(
+                    themeWithLed.ledColor.first,
+                    themeWithLed.ledColor.second,
+                    themeWithLed.ledColor.third
+                )
                 findViewById<TextView>(R.id.tv_driver_type).text = selected
             }
             .setNegativeButton("취소", null)
