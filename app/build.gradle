@@ -5,6 +5,15 @@ plugins {
 
 android {
 
+    signingConfigs {
+        Vodafone {
+            storeFile file('C:\\Users\\k250305\\Desktop\\android_apk_key\\platform 5.jks')
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storePassword 'android'
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
@@ -27,6 +36,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.Vodafone // 추가하기
         }
     }
 
@@ -34,6 +44,11 @@ android {
         aidl true
     }
 
+    sourceSets {
+        main {
+            aidl.srcDirs = ['src/main/aidl']
+        }
+    }
     viewBinding {
         enabled = true
     }
@@ -42,7 +57,14 @@ android {
         //noinspection DataBindingWithoutKapt
         enabled = true
     }
-}
+    aaptOptions {
+        cruncherEnabled = false
+        useNewCruncher = false
+    }
+
+
+    }
+
 
 dependencies {
 
