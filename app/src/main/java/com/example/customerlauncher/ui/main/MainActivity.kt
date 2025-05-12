@@ -91,6 +91,7 @@ class MainActivity : FragmentActivity() {
         observeWeather()
         startClockUpdate()
         startAdcMonitoring()
+
     }
 
     private fun setupTabClicks() {
@@ -169,8 +170,13 @@ class MainActivity : FragmentActivity() {
             if (rawBinder != null) {
                 val binder = rawBinder as IBinder
                 ledService = ILedDriverControl.Stub.asInterface(binder)
-                ledService.setDriverType("aw21036")
+
+                ledService.readAdcSub()
+//                ledService.setDriverType("aw21036")
+
+
                 Log.d("LED", "AIDL service connected")
+
             } else {
                 Log.e("LED", "AIDL service not available")
             }
@@ -185,6 +191,7 @@ class MainActivity : FragmentActivity() {
                 try {
                     val adc = ledService.getAdcValue()
                     findViewById<TextView>(R.id.tv_adc_value).text = adc.toString()
+//                    findViewById<TextView>(R.id.tv_driver_type).text = "드라이버: "+ ledService.getDriverType()
                     if (adc in 0..1024) {
                         Log.d("ADC", "Observed ADC=$adc -> adjustByAdc called")
                     } else {
@@ -445,6 +452,7 @@ class MainActivity : FragmentActivity() {
             .setPositiveButton("확인") { _, _ ->
                 val selected = spinner.selectedItem.toString()
                 ledService.setDriverType(selected)
+
                 findViewById<TextView>(R.id.tv_driver_type).text = selected
             }
             .setNegativeButton("취소", null)
