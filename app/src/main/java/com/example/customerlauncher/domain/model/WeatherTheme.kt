@@ -5,11 +5,14 @@ import android.graphics.drawable.GradientDrawable
 data class WeatherTheme(
     val backgroundGradient: GradientDrawable,
     val cardGradient: GradientDrawable,
-    val isDarkText: Boolean
+    val isDarkText: Boolean,
+
 )
 
 data class WeatherThemeWithLed(
     val name: String,
     val theme: WeatherTheme,
+    val animationResId: Int,
     val ledColor: Triple<Int, Int, Int>  // LED에 보낼 RGB 값
+
 )

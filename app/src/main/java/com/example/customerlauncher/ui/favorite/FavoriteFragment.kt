@@ -8,12 +8,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.customerlauncher.R
 import com.example.customerlauncher.domain.model.FavoriteContent
-import com.example.customerlauncher.ui.OttAdapter
+import com.example.customerlauncher.ui.ott.OttAdapter
 import org.json.JSONArray
 
 
@@ -34,10 +35,24 @@ class FavoriteFragment : Fragment() {
             addCategory(Intent.CATEGORY_LAUNCHER)
         }, 0)
         val favoriteApps = allApps.filter { it.activityInfo.packageName in appPackages }
-        appRecyclerView.adapter = OttAdapter(favoriteApps, pm) { app ->
-            val intent = pm.getLaunchIntentForPackage(app.activityInfo.packageName)
-            intent?.let { startActivity(it) }
-        }
+        appRecyclerView.adapter = OttAdapter(
+            favoriteApps,
+            pm,
+            onClick = { app ->
+                val intent = pm.getLaunchIntentForPackage(app.activityInfo.packageName)
+                intent?.let { startActivity(it) }
+            },
+            onLongClick = { app ->
+                val pkg = app.activityInfo.packageName
+                val context = requireContext()
+                val prefs = context.getSharedPreferences("favorites", Context.MODE_PRIVATE)
+                prefs.edit().remove(pkg).apply()
+                Toast.makeText(context, "☆ '${pkg}' 즐겨찾기에서 제거됨", Toast.LENGTH_SHORT).show()
+                // 어댑터 갱신 필요
+                onViewCreated(requireView(), null) // 간단한 방식으로 리로딩
+                true
+            }
+        )
 
         // 2. 콘텐츠 즐겨찾기 처리
         val contentRecyclerView = view.findViewById<RecyclerView>(R.id.favoriteContentRecyclerView)
@@ -54,9 +69,7 @@ class FavoriteFragment : Fragment() {
 
     private fun loadFavoriteAppPackages(): List<String> {
         val pref = requireContext().getSharedPreferences("favorites", Context.MODE_PRIVATE)
-        val json = pref.getString("favorite_list", "[]") ?: "[]"
-        val array = JSONArray(json)
-        return List(array.length()) { array.getString(it) }
+        return pref.all.filterValues { it == true }.mapNotNull { it.key }
     }
 
     private fun loadFavoriteContents(): List<FavoriteContent> {

@@ -31,7 +31,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.LottieAnimationView
 import com.example.customerlauncher.ContentFragment
-import com.example.customerlauncher.OttFragment
+import com.example.customerlauncher.ui.ott.OttFragment
 import com.example.customerlauncher.R
 import com.example.customerlauncher.SettingSidePanelFragment
 import android.database.Cursor
@@ -253,7 +253,7 @@ class MainActivity : FragmentActivity() {
                             info.weatherId in resolveWeatherCodeRange(code)
                         }.takeIf { it >= 0 } ?: 0  // fallback to 0
 
-                        updateWeatherCard(info)
+                        updateWeatherCard(info, themeWithLed.animationResId)
                     }
                     else {
                         // ✅ 날씨 테마 비활성화 상태 → default 테마 사용
@@ -273,7 +273,8 @@ class MainActivity : FragmentActivity() {
                                 weather = "기본 테마 (수동)",
                                 city = "UNKNOWN",
                                 weatherIcon = "ic_default" // 필요시 기본 아이콘도 변경
-                            )
+                            ),
+                            themeWithLed.animationResId
                         )
                     }
                 }
@@ -306,7 +307,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun updateWeatherCard(info: WeatherInfo) {
+    private fun updateWeatherCard(info: WeatherInfo, animationResId: Int) {
 
         if(info.weatherId!=-1) {
             val weatherCard = findViewById<View>(R.id.weather_card)
@@ -317,7 +318,7 @@ class MainActivity : FragmentActivity() {
             weatherCard.findViewById<TextView>(R.id.windText).text =
                 "바람: ${String.format("%.1f", info.windSpeed)} m/s"
             weatherCard.findViewById<LottieAnimationView>(R.id.weatherIcon).apply {
-                setAnimation(R.raw.sunny)
+                setAnimation(animationResId)
                 playAnimation()
             }
         }
@@ -329,7 +330,10 @@ class MainActivity : FragmentActivity() {
             weatherCard.findViewById<TextView>(R.id.dateText).text = "정보를 가져올수 없습니다"
             weatherCard.findViewById<TextView>(R.id.windText).text =
                 "바람: 정보를 가져올수 없습니다 "
-
+            weatherCard.findViewById<LottieAnimationView>(R.id.weatherIcon).apply {
+                setAnimation(animationResId)
+                playAnimation()
+            }
         }
 
     }
@@ -529,8 +533,7 @@ class MainActivity : FragmentActivity() {
             val weatherCode = themeCodes[currentThemeIndex]
             val themeWithLed = getThemeForWeather(weatherCode)
             setWeatherTheme(themeWithLed.theme)
-            Log.d("TEST", weatherCode.toString())
-            Log.d("TEST", themeWithLed.name)
+            updateWeatherCardAnimationOnly(themeWithLed.animationResId)
             prefs.edit().putInt("selected_theme_code", weatherCode).apply()
             Log.d("TEST" , prefs.getInt("selected_theme_code", 800).toString())
             ledService.setLedColor(
@@ -538,6 +541,14 @@ class MainActivity : FragmentActivity() {
                 themeWithLed.ledColor.second,
                 themeWithLed.ledColor.third
             )
+        }
+    }
+
+    private fun updateWeatherCardAnimationOnly(animationResId: Int) {
+        val weatherCard = findViewById<View>(R.id.weather_card)
+        weatherCard.findViewById<LottieAnimationView>(R.id.weatherIcon).apply {
+            setAnimation(animationResId)
+            playAnimation()
         }
     }
     private fun startExternalPoseService() {
