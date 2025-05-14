@@ -1,5 +1,6 @@
 package com.example.customerlauncher.ui.ott
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.customerlauncher.R
@@ -42,8 +44,17 @@ class OttFragment : Fragment() {
             },
             onLongClick = { app ->
                 val pkgName = app.activityInfo.packageName
+
+                val sharedPreferences = requireContext().getSharedPreferences("favorites", Context.MODE_PRIVATE)
                 val isFavorite = sharedPreferences.getBoolean(pkgName, false)
                 sharedPreferences.edit().putBoolean(pkgName, !isFavorite).apply()
+                val appName = app.loadLabel(pm).toString()
+                val message = if (!isFavorite) {
+                    "★ '$appName' 즐겨찾기에 추가됨"
+                } else {
+                    "☆ '$appName' 즐겨찾기에서 제거됨"
+                }
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 true
             }
         )
