@@ -50,12 +50,12 @@ public class LedControlService extends Service {
             try {
                 if (ACTION_LED_STANDBY.equals(action)) {
                     ledService.ledOn(1);
-               //     ledService.setBrightness(1,10);
+                    ledService.setBrightness(1,51); // white duty 20 %
                     ledService.ledOff(0);
                     Log.i(TAG, "Standby 모드 LED 설정");
                 } else if (ACTION_LED_ACTIVE.equals(action)) {
                     ledService.ledOn(0);
-             //       ledService.setBrightness(0,10);
+                    ledService.setBrightness(0,127); // red duty 50 %
                     ledService.ledOff(1);
                     Log.i(TAG, "Active 모드 LED 설정");
                 }
