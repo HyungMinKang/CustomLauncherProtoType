@@ -12,6 +12,7 @@ android {
             keyPassword 'android'
             storePassword 'android'
         }
+
     }
 
     compileOptions {
@@ -36,7 +37,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.Vodafone // 추가하기
+            signingConfig signingConfigs.Vodafone
         }
     }
 
