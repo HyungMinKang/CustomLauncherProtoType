@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.customerlauncher.R
+import com.example.customerlauncher.VideoPlayerActivity
 import com.example.customerlauncher.domain.model.FavoriteContent
 import com.example.customerlauncher.ui.ott.OttAdapter
 import org.json.JSONArray
@@ -20,51 +21,52 @@ import org.json.JSONArray
 
 class FavoriteFragment : Fragment() {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    private lateinit var adapter: FavoriteItemAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_favorite, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val recyclerView = view.findViewById<RecyclerView>(R.id.favoriteUnifiedRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+
         val pm = requireActivity().packageManager
 
-        // 1. 앱 즐겨찾기 처리
-        val appRecyclerView = view.findViewById<RecyclerView>(R.id.favoriteAppRecyclerView)
-        appRecyclerView.layoutManager = GridLayoutManager(context, 4)
-        val appPackages = loadFavoriteAppPackages()
-        val allApps = pm.queryIntentActivities(Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }, 0)
-        val favoriteApps = allApps.filter { it.activityInfo.packageName in appPackages }
-        appRecyclerView.adapter = OttAdapter(
-            favoriteApps,
+        adapter = FavoriteItemAdapter(
             pm,
-            onClick = { app ->
-                val intent = pm.getLaunchIntentForPackage(app.activityInfo.packageName)
-                intent?.let { startActivity(it) }
+            onAppClick = {
+                val intent = pm.getLaunchIntentForPackage(it.activityInfo.packageName)
+                if (intent != null) startActivity(intent)
+                else Toast.makeText(requireContext(), "앱을 실행할 수 없습니다", Toast.LENGTH_SHORT).show()
             },
-            onLongClick = { app ->
-                val pkg = app.activityInfo.packageName
-                val context = requireContext()
-                val prefs = context.getSharedPreferences("favorites", Context.MODE_PRIVATE)
-                prefs.edit().remove(pkg).apply()
-                Toast.makeText(context, "☆ '${pkg}' 즐겨찾기에서 제거됨", Toast.LENGTH_SHORT).show()
-                // 어댑터 갱신 필요
-                onViewCreated(requireView(), null) // 간단한 방식으로 리로딩
-                true
+            onContentClick = {
+                val intent = Intent(requireContext(), VideoPlayerActivity::class.java)
+                intent.putExtra("videoUri", it.videoUrl)
+                startActivity(intent)
             }
         )
 
-        // 2. 콘텐츠 즐겨찾기 처리
-        val contentRecyclerView = view.findViewById<RecyclerView>(R.id.favoriteContentRecyclerView)
-        contentRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        val contents = loadFavoriteContents()
-        contentRecyclerView.adapter = FavoriteContentAdapter(contents) { content ->
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(Uri.parse(content.videoUrl), "video/*")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            startActivity(intent)
+        recyclerView.adapter = adapter
+        reloadFavorites()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        reloadFavorites() // Fragment 재진입 시 갱신
+    }
+
+    private fun reloadFavorites() {
+        val pm = requireActivity().packageManager
+        val apps = loadFavoriteAppPackages().let { packages ->
+            pm.queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0)
+                .filter { it.activityInfo.packageName in packages }
+                .map { FavoriteItem.App(it) }
         }
+        val contents = loadFavoriteContents().map { FavoriteItem.Content(it) }
+        adapter.updateData(apps + contents)
     }
 
     private fun loadFavoriteAppPackages(): List<String> {

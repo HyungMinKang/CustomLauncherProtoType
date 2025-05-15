@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -36,7 +37,7 @@ class OttFragment : Fragment() {
 
         val pm = requireActivity().packageManager
         val apps = getInstalledOttApps(pm)
-
+        Log.d("OTT", "installed app ${apps}")
         recyclerView.adapter = OttAdapter(apps, pm,
             onClick = { app ->
                 val intent = pm.getLaunchIntentForPackage(app.activityInfo.packageName)
@@ -66,14 +67,18 @@ class OttFragment : Fragment() {
         }
         val allApps = pm.queryIntentActivities(intent, 0)
 
-        val ottKeywords =listOf(
-            "netflix", "youtube", "pooq", "wavve", "웨이브",
-            "tving", "watcha", "coupang", "disney", "prime", "espn"
+        val ottPackages = listOf(
+            "com.google.android.youtube.tv",
+            "com.google.android.youtube.tvmusic",
+            "com.netflix.ninja",
+            "net.cj.em.tving",
+            "com.coupang.mobile.play",
+            "kr.co.captv.pooq.tv"  // Wavve
         )
 
         return allApps.filter {
-            val label = it.loadLabel(pm).toString().lowercase()
-            ottKeywords.any { keyword -> label.contains(keyword) }
+            val packageName = it.activityInfo.packageName
+            ottPackages.contains(packageName)
         }
     }
 }

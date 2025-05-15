@@ -40,6 +40,7 @@ import android.media.tv.TvInputManager
 import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 
 import com.example.customerlauncher.domain.model.WeatherInfo
 import com.example.customerlauncher.domain.model.WeatherTheme
@@ -465,6 +466,7 @@ class MainActivity : FragmentActivity() {
     }
 
     fun applyIconColorToAll(root: View, color: Int) {
+        if (root is RecyclerView) return // 제외
         if (root is ImageView && root.id != R.id.thumbnailImageView && root.drawable != null) {
             root.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         } else if (root is ViewGroup) {
