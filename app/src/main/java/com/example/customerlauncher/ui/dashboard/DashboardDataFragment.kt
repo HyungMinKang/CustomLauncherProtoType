@@ -1,6 +1,9 @@
 package com.example.customerlauncher.ui.dashboard
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -17,13 +20,16 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import com.example.customerlauncher.R
 import com.example.customerlauncher.domain.model.WeatherTheme
+import com.example.customerlauncher.ui.main.MainActivity
 import java.io.File
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.text.DecimalFormat
 
 class DashboardDataFragment : Fragment() {
-
+    private lateinit var networkStatus: TextView
+    private lateinit var ipInfo: TextView
+    private lateinit var networkReceiver: BroadcastReceiver
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -34,21 +40,45 @@ class DashboardDataFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val networkStatus = view.findViewById<TextView>(R.id.tv_network_status)
-        val ipInfo = view.findViewById<TextView>(R.id.tv_ip_address)
+        networkStatus = view.findViewById<TextView>(R.id.tv_network_status)
+        ipInfo = view.findViewById<TextView>(R.id.tv_ip_address)
         val storageInfo = view.findViewById<TextView>(R.id.tv_storage)
-
-        // 네트워크 상태
-        networkStatus.text = getNetworkStatus()
-
-        // 디바이스 정보
-        val ip = getLocalIpAddress()
-        ipInfo.text = "IP: $ip"
-        // 저장 공간
         storageInfo.text = getStorageInfo()
+        networkReceiver = object : BroadcastReceiver() {
+            private var lastConnected = true // 연결 상태 변화 감지를 위해 사용
+
+
+            override fun onReceive(
+                context: Context?,
+                intent: Intent?
+            ) {
+                if (intent?.action == ConnectivityManager.CONNECTIVITY_ACTION) {
+                    val isConnected = isNetworkConnected()
+
+                    // UI 업데이트
+                    networkStatus.text = getNetworkStatus()
+                    ipInfo.text = "IP: ${getLocalIpAddress()}"
+                    if (isConnected != lastConnected) {
+                        lastConnected = isConnected
+                        (activity as? MainActivity)?.forceWeatherRefresh()
+                    }
+                }
+            }
+        }
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        requireContext().registerReceiver(networkReceiver, filter)
+
+        // 최초 한 번 초기값 설정
+        networkStatus.text = getNetworkStatus()
+        ipInfo.text = "IP: ${getLocalIpAddress()}"
+
 
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireContext().unregisterReceiver(networkReceiver)
+    }
     @RequiresApi(Build.VERSION_CODES.M)
     private fun getNetworkStatus(): String {
         val cm = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -61,7 +91,13 @@ class DashboardDataFragment : Fragment() {
             else -> "Network State:  네트워크 없음"
         }
     }
-
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun isNetworkConnected(): Boolean {
+        val cm = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = cm.activeNetwork ?: return false
+        val capabilities = cm.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
     private fun getLocalIpAddress(): String {
         try {
             val interfaces = NetworkInterface.getNetworkInterfaces()
@@ -86,25 +122,6 @@ class DashboardDataFragment : Fragment() {
         return "저장공간: ${format.format(avail / 1e9)}GB / ${format.format(total / 1e9)}GB"
     }
 
-    private fun launchApp(packageName: String) {
-        val launchIntent = requireContext().packageManager.getLaunchIntentForPackage(packageName)
-        launchIntent?.let { startActivity(it) }
-    }
-
-    private fun setAppIcon(imageView: ImageView, packageName: String) {
-        try {
-            val pm = requireContext().packageManager
-            val icon = pm.getApplicationIcon(packageName)
-            imageView.setImageDrawable(icon)
-
-            imageView.setOnClickListener {
-                val intent = pm.getLaunchIntentForPackage(packageName)
-                intent?.let { startActivity(it) }
-            }
-        } catch (e: Exception) {
-            //imageView.visibility = View.GONE // 앱 설치 안됨
-        }
-    }
     private fun applyTextColorToAll(view: View, color: Int) {
         when (view) {
             is TextView -> view.setTextColor(color)
@@ -120,8 +137,6 @@ class DashboardDataFragment : Fragment() {
         view?.findViewById<View>(R.id.layout_dashboard)?.let { dashboardLayout ->
             // 배경
             dashboardLayout.background = theme.cardGradient
-            //dashboardLayout.setBackgroundColor(theme.cardGradient)
-            Log.d("DashBoard", "${theme.cardGradient} ${dashboardLayout.background}")
             // 텍스트 색상 적용
             val textColor = if (theme.isDarkText) Color.BLACK else Color.WHITE
             applyTextColorToAll(dashboardLayout, textColor)

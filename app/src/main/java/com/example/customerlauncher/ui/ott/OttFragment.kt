@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.customerlauncher.R
 import com.example.customerlauncher.ui.common.GridSpacingItemDecoration
+import com.example.customerlauncher.ui.main.MainActivity
 
 
 class OttFragment : Fragment() {
@@ -34,11 +36,12 @@ class OttFragment : Fragment() {
         val spacing = 12 // dp → px 변환 필요시 아래 참고
         recyclerView.layoutManager = GridLayoutManager(context, spanCount)
         recyclerView.addItemDecoration(GridSpacingItemDecoration(spanCount, spacing, includeEdge = false))
-
+        val theme = (activity as? MainActivity)?.getCurrentTheme()
+        val textColor = if (theme?.isDarkText == true) Color.BLACK else Color.WHITE
         val pm = requireActivity().packageManager
         val apps = getInstalledOttApps(pm)
         Log.d("OTT", "installed app ${apps}")
-        recyclerView.adapter = OttAdapter(apps, pm,
+        recyclerView.adapter = OttAdapter(apps, pm, textColor,
             onClick = { app ->
                 val intent = pm.getLaunchIntentForPackage(app.activityInfo.packageName)
                 intent?.let { startActivity(it) }

@@ -2,6 +2,7 @@ package com.example.customerlauncher.ui.main
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,7 @@ import com.example.customerlauncher.VideoPlayerActivity
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ContentAdapter(private val fragment: ContentFragment, private val contentList: List<ContentData>) :
+class ContentAdapter(private val fragment: ContentFragment, private val contentList: List<ContentData>, var textColor: Int) :
     RecyclerView.Adapter<ContentAdapter.ContentViewHolder>() {
 
     private val prefs = fragment.requireContext().getSharedPreferences("favorites", android.content.Context.MODE_PRIVATE)
@@ -32,7 +33,7 @@ class ContentAdapter(private val fragment: ContentFragment, private val contentL
         val contentData = contentList[position]
         holder.titleTextView.text = contentData.title
         holder.thumbnailImageView.setImageDrawable(null)
-
+        holder.titleTextView.setTextColor(textColor)
         Glide.with(fragment)
             .load(contentData.thumbnailUrl)  // 또는 thumbnailUrl
             .placeholder(R.drawable.placeholder)

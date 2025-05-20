@@ -86,7 +86,7 @@ object WeatherThemeManager {
                 ledColor = Triple(63, 81, 181)
                 bgStart = "#263238"; bgEnd = "#000000"
                 cardStart = "#7986CB"; cardEnd = "#5C6BC0"
-                darkText = true
+                darkText = false
                 animationResId = R.raw.sunny
             }
         }

@@ -2,7 +2,9 @@ package com.example.customerlauncher;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -15,7 +17,10 @@ public class LedControlService extends Service {
 
     public static final String ACTION_LED_STANDBY = "com.example.customerlauncher.ACTION_LED_STANDBY";
     public static final String ACTION_LED_ACTIVE = "com.example.customerlauncher.ACTION_LED_ACTIVE";
+    public static final String ACTION_LED_PREACTIVE = "com.example.customerlauncher.ACTION_LED_PREACTIVE";
     private static final String TAG = "PowerLedControlService";
+
+
     private static final String SERVICE_NAME = "vendor.kaon.hardware.kaondevicecontrol.IKaonDeviceControl/default";
     private static IKaonDeviceControl ledService = null;
 
@@ -48,23 +53,40 @@ public class LedControlService extends Service {
         if (intent != null && ledService != null) {
             String action = intent.getAction();
             try {
-                if (ACTION_LED_STANDBY.equals(action)) {
-                    ledService.ledOn(1);
-                    ledService.setBrightness(1,51); // white duty 20 %
-                    ledService.ledOff(0);
-                    Log.i(TAG, "Standby 모드 LED 설정");
-                } else if (ACTION_LED_ACTIVE.equals(action)) {
-                    ledService.ledOn(0);
-                    ledService.setBrightness(0,127); // red duty 50 %
-                    ledService.ledOff(1);
-                    Log.i(TAG, "Active 모드 LED 설정");
+                switch (action) {
+                    case ACTION_LED_STANDBY:
+                        // 화면 꺼짐: white 20%, red off
+                        ledService.ledOff(0);   // red off
+                        ledService.setBrightness(1, 13);   // white 20%
+                        ledService.ledOn(1);
+                        Log.d(TAG, "Standby 모드 LED 설정");
+                        break;
+
+                    case ACTION_LED_PREACTIVE:
+                        // 화면 켜지기 직전: white 50%, red off
+                        ledService.setBrightness(1, 51);  // white 50%
+                        ledService.ledOn(1);
+                        Log.d(TAG, "Pre-Active 모드 LED 설정");
+                        break;
+
+                    case ACTION_LED_ACTIVE:
+                        // 화면 완전히 켜짐: red 50%, white off
+                        ledService.ledOff(1);              // white off
+                        ledService.setBrightness(0, 51);  // red 50%
+                        ledService.ledOn(0);
+
+                        Log.d(TAG, "Active 모드 LED 설정");
+                        break;
                 }
+
             } catch (RemoteException e) {
                 Log.e(TAG, "LED 제어 실패", e);
             }
         }
         return START_NOT_STICKY;
     }
+
+
 
     public static void setLedColor(int ledColor) throws RemoteException {
         if (ledService != null) {

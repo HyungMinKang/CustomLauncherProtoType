@@ -13,12 +13,14 @@ import com.example.customerlauncher.R
 class OttAdapter(
     private val apps: List<ResolveInfo>,
     private val pm: PackageManager,
+    var textColor: Int,
     private val onClick: (ResolveInfo) -> Unit,
     private val onLongClick: (ResolveInfo) -> Boolean
 ) : RecyclerView.Adapter<OttAdapter.OttViewHolder>() {
 
     inner class OttViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val icon: ImageView = view.findViewById(R.id.appIcon)
+        val label: TextView = view.findViewById<TextView>(R.id.appLabel)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OttViewHolder {
@@ -30,7 +32,8 @@ class OttAdapter(
     override fun onBindViewHolder(holder: OttViewHolder, position: Int) {
         val app = apps[position]
         holder.icon.setImageDrawable(app.loadIcon(pm))
-
+        holder.label.text = app.loadLabel(pm).toString()
+        holder.label.setTextColor(textColor)
         holder.itemView.setOnClickListener { onClick(app) }
         holder.itemView.setOnLongClickListener { onLongClick(app) }
 

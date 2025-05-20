@@ -23,30 +23,44 @@ class HomeViewModel(private val weatherRepository: WeatherRepository, private va
 
     fun loadLocationInformation(){
         viewModelScope.launch {
-            _locationInformationStateFlow.emit(ipinfoRepository.getIpInfo())
+            try {
+                val ipInfo = ipinfoRepository.getIpInfo()
+                _locationInformationStateFlow.emit(ipInfo)
+            } catch (e: Exception) {
+                // fallback: 서울 좌표
+                val fallback = IpInfo(
+                    city = "Seoul",
+                    ip = "192.168.1.170",
+                    loc = "37.5665,126.9780"
+                )
+                _locationInformationStateFlow.emit(fallback)
+            }
         }
     }
 
     fun loadWeatherInformation(latitude: Double, longitude:Double){
         viewModelScope.launch {
-            _weatherInformationStateFlow.emit(weatherRepository.getWeatherInfo(latitude,longitude))
+            try {
+                val weather = weatherRepository.getWeatherInfo(latitude, longitude)
+                _weatherInformationStateFlow.emit(weather)
+            } catch (e: Exception) {
+                val fallback = WeatherInfo.default()
+                _weatherInformationStateFlow.emit(fallback)
+            }
         }
     }
 
 
-    private fun observeLocationInformation() {
-        // location 정보가 업데이트될 때마다 날씨 정보를 로드
-        locationInformationStateFlow
-            .filterNotNull() // null 값을 필터링 (위치 정보가 있을 때만)
-            .onEach { ipInfo ->
-                // 위도와 경도 가져오기
 
+    private fun observeLocationInformation() {
+        locationInformationStateFlow
+            .filterNotNull()
+            .onEach { ipInfo ->
                 val loc = ipInfo.loc.split(",")
-                val latitude = loc[0].toDoubleOrNull()!!
-                val longitude = loc[1].toDoubleOrNull()!!
+                val latitude = loc[0].toDoubleOrNull() ?: 37.5665
+                val longitude = loc[1].toDoubleOrNull() ?: 126.9780
                 loadWeatherInformation(latitude, longitude)
             }
             .launchIn(viewModelScope)
     }
-
 }

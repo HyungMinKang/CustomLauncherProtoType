@@ -8,8 +8,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.database.Cursor
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.media.tv.TvContract
+import android.media.tv.TvInputManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -25,39 +29,33 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.example.customerlauncher.ContentFragment
-import com.example.customerlauncher.ui.ott.OttFragment
 import com.example.customerlauncher.R
 import com.example.customerlauncher.SettingSidePanelFragment
-import android.database.Cursor
-import android.media.tv.TvContract
-import android.media.tv.TvInputManager
-import android.net.Uri
-import android.widget.Toast
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
-
 import com.example.customerlauncher.domain.model.WeatherInfo
 import com.example.customerlauncher.domain.model.WeatherTheme
 import com.example.customerlauncher.ui.dashboard.DashboardDataFragment
 import com.example.customerlauncher.ui.favorite.FavoriteFragment
+import com.example.customerlauncher.ui.ott.OttFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.android.ext.android.inject
 import vendor.kaon.hardware.LedDriverControl.ILedDriverControl
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import kotlin.jvm.java
-import kotlin.text.format
 
 class MainActivity : FragmentActivity() {
 
@@ -65,8 +63,8 @@ class MainActivity : FragmentActivity() {
     private val viewModel: HomeViewModel by inject()
     private var lastGroup = -1
     private val themeCodes = listOf(200, 300, 500, 600, 700, 800, 801)
-    private var currentThemeIndex = 0
-
+    private var currentThemeIndex = 0// 기본값: 맑음
+    private var currentTheme: WeatherTheme? = null
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +88,7 @@ class MainActivity : FragmentActivity() {
         connectAidlService()
         initTabFocusAndAnimation()
         startAdcUpdater()
+        startPeriodicWeatherUpdate()
         setupTabClicks()
         observeWeather()
         startClockUpdate()
@@ -172,11 +171,32 @@ class MainActivity : FragmentActivity() {
                 finish()
                 return true;
             }
+            KeyEvent.KEYCODE_8->{
+                ledService.setDriverType("aw21036")
+                val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
+                ledService.setLedColor(
+                    themeWithLed.ledColor.first,
+                    themeWithLed.ledColor.second,
+                    themeWithLed.ledColor.third
+                )
+            }
             KeyEvent.KEYCODE_9 -> {
-                logTvChannels()
-                logTvInputs()
-                logTvPrograms()
-                return true
+                ledService.setDriverType("aw20072")
+                val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
+                ledService.setLedColor(
+                    themeWithLed.ledColor.first,
+                    themeWithLed.ledColor.second,
+                    themeWithLed.ledColor.third
+                )
+            }
+            KeyEvent.KEYCODE_0 -> {
+                ledService.setDriverType("et6296y")
+                val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
+                ledService.setLedColor(
+                    themeWithLed.ledColor.first,
+                    themeWithLed.ledColor.second,
+                    themeWithLed.ledColor.third
+                )
             }
 
         }
@@ -216,7 +236,16 @@ class MainActivity : FragmentActivity() {
         lifecycleScope.launch {
             while (true) {
                 try {
-                    val adc = ledService.getAdcValue()
+                    var adc = withTimeoutOrNull(300) {
+                        ledService.getAdcValue()
+                    } ?: -1
+                    if(adc>=1024){
+                        adc = 1024
+                    }
+                    else if(adc >=-1){
+                        adc =ledService.getAdcValue()
+                        Log.e("ADC", "Error in ADC observer")
+                    }
                     findViewById<TextView>(R.id.tv_adc_value).text = adc.toString()
 //                    findViewById<TextView>(R.id.tv_driver_type).text = "드라이버: "+ ledService.getDriverType()
                     if (adc in 0..1024) {
@@ -228,56 +257,53 @@ class MainActivity : FragmentActivity() {
                 } catch (e: Exception) {
                     Log.e("ADC", "Error in ADC observer", e)
                 }
-                delay(1000)
+                delay(500)
             }
         }
+    }
+
+    private fun startPeriodicWeatherUpdate() {
+        lifecycleScope.launch {
+            while (true) {
+                try {
+                    Log.d("WeatherUpdate", "날씨 정보 갱신 호출")
+                    viewModel.loadLocationInformation()
+                } catch (e: Exception) {
+                    Log.e("WeatherUpdate", "날씨 정보 갱신 실패", e)
+                }
+                delay(30 *60* 1000L) // 30분 주기
+            }
+        }
+    }
+    fun forceWeatherRefresh() {
+        viewModel.loadLocationInformation()  // 위치 → 날씨 재요청
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun observeWeather() {
         lifecycleScope.launch {
-            viewModel.loadLocationInformation()
             viewModel.weatherInformationStateFlow.collect {
                 it?.let { info ->
                     val prefs = getSharedPreferences("setting", Context.MODE_PRIVATE)
                     findViewById<View>(R.id.loading_overlay).visibility = View.GONE
-                    if (prefs.getBoolean("use_weather_theme", true)) {
-                        val themeWithLed = getThemeForWeather(info.weatherId)
-                        prefs.edit().putInt("selected_theme_code", info.weatherId).apply()
-                        setWeatherTheme(themeWithLed.theme)
-                        ledService.setLedColor(
-                            themeWithLed.ledColor.first,
-                            themeWithLed.ledColor.second,
-                            themeWithLed.ledColor.third
-                        )
-                        currentThemeIndex = themeCodes.indexOfFirst { code ->
-                            info.weatherId in resolveWeatherCodeRange(code)
-                        }.takeIf { it >= 0 } ?: 0  // fallback to 0
 
-                        updateWeatherCard(info, themeWithLed.animationResId)
-                    }
-                    else {
-                        // ✅ 날씨 테마 비활성화 상태 → default 테마 사용
-                        val themeWithLed =
-                            getThemeForWeather(-1) // -1 or 0 or any code not matching predefined range
-                        prefs.edit().putInt("selected_theme_code", -1).apply()
-                        setWeatherTheme(themeWithLed.theme)
-                        ledService.setLedColor(
-                            themeWithLed.ledColor.first,
-                            themeWithLed.ledColor.second,
-                            themeWithLed.ledColor.third
-                        )
-                        currentThemeIndex = -1
-                        updateWeatherCard(
-                            info.copy(
-                                weatherId = -1,
-                                weather = "기본 테마 (수동)",
-                                city = "UNKNOWN",
-                                weatherIcon = "ic_default" // 필요시 기본 아이콘도 변경
-                            ),
-                            themeWithLed.animationResId
-                        )
-                    }
+                    val themeCode = info.weatherId
+                    val themeWithLed = getThemeForWeather(themeCode)
+
+                    prefs.edit().putInt("selected_theme_code", themeCode).apply()
+
+                    setWeatherTheme(themeWithLed.theme, themeCode)
+                    ledService.setLedColor(
+                        themeWithLed.ledColor.first,
+                        themeWithLed.ledColor.second,
+                        themeWithLed.ledColor.third
+                    )
+
+                    currentThemeIndex = themeCodes.indexOfFirst { code ->
+                        themeCode in resolveWeatherCodeRange(code)
+                    }.takeIf { it >= 0 } ?: 0
+
+                    updateWeatherCard(info, themeWithLed.animationResId)
                 }
             }
         }
@@ -303,7 +329,7 @@ class MainActivity : FragmentActivity() {
                     }
                 }
 
-                delay(10000L)  // 30초 간격 (서비스보다 훨씬 여유롭게)
+                delay(500L)  // 30초 간격 (서비스보다 훨씬 여유롭게)
             }
         }
     }
@@ -325,12 +351,12 @@ class MainActivity : FragmentActivity() {
         }
         else{
             val weatherCard = findViewById<View>(R.id.weather_card)
-            weatherCard.findViewById<TextView>(R.id.temperatureText).text = "정보를 가져올수 없습니다"
-            weatherCard.findViewById<TextView>(R.id.cityText).text = "정보를 가져올수 없습니다"
-            weatherCard.findViewById<TextView>(R.id.humidityText).text = "습도 정보를 가져올수 없습니다"
-            weatherCard.findViewById<TextView>(R.id.dateText).text = "정보를 가져올수 없습니다"
+            weatherCard.findViewById<TextView>(R.id.temperatureText).text = "-"
+            weatherCard.findViewById<TextView>(R.id.cityText).text = "-"
+            weatherCard.findViewById<TextView>(R.id.humidityText).text = "-"
+            weatherCard.findViewById<TextView>(R.id.dateText).text = "-"
             weatherCard.findViewById<TextView>(R.id.windText).text =
-                "바람: 정보를 가져올수 없습니다 "
+                "바람: - "
             weatherCard.findViewById<LottieAnimationView>(R.id.weatherIcon).apply {
                 setAnimation(animationResId)
                 playAnimation()
@@ -438,11 +464,16 @@ class MainActivity : FragmentActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    fun setWeatherTheme(theme: WeatherTheme) {
+    fun setWeatherTheme(theme: WeatherTheme, weatherCode: Int) {
         findViewById<View>(R.id.root_layout).background = theme.backgroundGradient
         findViewById<View>(R.id.weather_card).background = theme.cardGradient
         findViewById<View>(R.id.dashboard_container).setBackgroundColor(Color.TRANSPARENT)
-
+        currentTheme = theme
+        weatherCode.let {
+            currentThemeIndex = themeCodes.indexOfFirst { code ->
+                it in resolveWeatherCodeRange(code)
+            }.takeIf { it >= 0 } ?: 0
+        }
         val dashboardFragment = supportFragmentManager.findFragmentById(R.id.dashboard_container)
         if (dashboardFragment is DashboardDataFragment) {
             dashboardFragment.applyTheme(theme)
@@ -451,10 +482,18 @@ class MainActivity : FragmentActivity() {
         val textColor = if (theme.isDarkText) Color.BLACK else Color.WHITE
         applyTextColorToAll(findViewById(R.id.root_layout), textColor)
         applyIconColorToAll(findViewById(R.id.root_layout), textColor)
+        supportFragmentManager.fragments.forEach {
+            if (it is ThemeFragment) it.onThemeChanged(theme)
+        }
+        val current = WeatherThemeManager.getThemeForWeather(weatherCode)
+        Toast.makeText(this, "테마 변경: $weatherCode - ${current.name}", Toast.LENGTH_LONG).show()
     }
 
+    fun getCurrentTheme(): WeatherTheme? {
+        return currentTheme
+    }
 
-    private fun applyTextColorToAll(view: View, color: Int) {
+    fun applyTextColorToAll(view: View, color: Int) {
         when (view) {
             is TextView -> view.setTextColor(color)
             is ViewGroup -> {
@@ -513,14 +552,18 @@ class MainActivity : FragmentActivity() {
             .setPositiveButton("확인") { _, _ ->
                 val selected = spinner.selectedItem.toString()
                 val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
-                ledService.setDriverType(selected)
+                lifecycleScope.launch {
+                    ledService.setDriverType(selected)
+                    delay(300)  // 💡 init 후 안정화 시간 확보 (300ms~500ms 권장)
 
-                ledService.setLedColor(
-                    themeWithLed.ledColor.first,
-                    themeWithLed.ledColor.second,
-                    themeWithLed.ledColor.third
-                )
-                findViewById<TextView>(R.id.tv_driver_type).text = selected
+                    ledService.setLedColor(
+                        themeWithLed.ledColor.first,
+                        themeWithLed.ledColor.second,
+                        themeWithLed.ledColor.third
+                    )
+
+                    findViewById<TextView>(R.id.tv_driver_type).text = selected
+                }
             }
             .setNegativeButton("취소", null)
             .show()
@@ -530,23 +573,28 @@ class MainActivity : FragmentActivity() {
     @RequiresApi(Build.VERSION_CODES.N)
     private fun cycleToNextWeatherTheme() {
         val prefs = getSharedPreferences("setting", Context.MODE_PRIVATE)
-        if (prefs.getBoolean("use_weather_theme", true)) {
-            currentThemeIndex = (currentThemeIndex + 1) % themeCodes.size
-            val weatherCode = themeCodes[currentThemeIndex]
-            val themeWithLed = getThemeForWeather(weatherCode)
-            setWeatherTheme(themeWithLed.theme)
-            updateWeatherCardAnimationOnly(themeWithLed.animationResId)
-            prefs.edit().putInt("selected_theme_code", weatherCode).apply()
-            Log.d("TEST" , prefs.getInt("selected_theme_code", 800).toString())
-            ledService.setLedColor(
-                themeWithLed.ledColor.first,
-                themeWithLed.ledColor.second,
-                themeWithLed.ledColor.third
-            )
-        }
+
+        currentThemeIndex = (currentThemeIndex + 1) % themeCodes.size
+        val weatherCode = themeCodes[currentThemeIndex]
+        val themeWithLed = getThemeForWeather(weatherCode)
+
+        // 테마 적용
+        setWeatherTheme(themeWithLed.theme, weatherCode)
+        updateWeatherCardAnimationOnly(themeWithLed.animationResId)
+        ledService.setLedColor(
+            themeWithLed.ledColor.first,
+            themeWithLed.ledColor.second,
+            themeWithLed.ledColor.third
+        )
+
+        // 테마 코드 저장 (UI 확인용)
+        prefs.edit().putInt("selected_theme_code", weatherCode).apply()
+
+        // 사용자 알림
+
     }
 
-    private fun updateWeatherCardAnimationOnly(animationResId: Int) {
+    fun updateWeatherCardAnimationOnly(animationResId: Int) {
         val weatherCard = findViewById<View>(R.id.weather_card)
         weatherCard.findViewById<LottieAnimationView>(R.id.weatherIcon).apply {
             setAnimation(animationResId)

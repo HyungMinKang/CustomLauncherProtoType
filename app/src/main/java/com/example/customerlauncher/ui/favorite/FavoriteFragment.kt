@@ -2,12 +2,14 @@ package com.example.customerlauncher.ui.favorite
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,11 +17,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.customerlauncher.R
 import com.example.customerlauncher.VideoPlayerActivity
 import com.example.customerlauncher.domain.model.FavoriteContent
+import com.example.customerlauncher.domain.model.WeatherTheme
+import com.example.customerlauncher.domain.model.WeatherThemeWithLed
+import com.example.customerlauncher.ui.main.MainActivity
+import com.example.customerlauncher.ui.main.ThemeFragment
 import com.example.customerlauncher.ui.ott.OttAdapter
 import org.json.JSONArray
 
 
-class FavoriteFragment : Fragment() {
+class FavoriteFragment : Fragment(), ThemeFragment {
 
     private lateinit var adapter: FavoriteItemAdapter
 
@@ -34,9 +40,11 @@ class FavoriteFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
         val pm = requireActivity().packageManager
-
+        val theme = (activity as? MainActivity)?.getCurrentTheme()
+        val textColor = if (theme?.isDarkText == true) Color.BLACK else Color.WHITE
+        view.findViewById<TextView>(R.id.favoriteSectionTitle).setTextColor(textColor)
         adapter = FavoriteItemAdapter(
-            pm,
+            pm, textColor,
             onAppClick = {
                 val intent = pm.getLaunchIntentForPackage(it.activityInfo.packageName)
                 if (intent != null) startActivity(intent)
@@ -88,4 +96,10 @@ class FavoriteFragment : Fragment() {
             )
         }
     }
+
+    override fun onThemeChanged(theme: WeatherTheme) {
+        view?.let { MainActivity().applyTextColorToAll(it, if (theme.isDarkText) Color.BLACK else Color.WHITE) }
+    }
+
+
 }

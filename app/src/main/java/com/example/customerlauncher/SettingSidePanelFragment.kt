@@ -7,27 +7,23 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.widget.SwitchCompat
-import androidx.core.graphics.drawable.DrawableCompat.applyTheme
 import androidx.fragment.app.DialogFragment
 import com.example.customerlauncher.domain.model.WeatherThemeWithLed
 import com.example.customerlauncher.ui.main.MainActivity
 
-
 class SettingSidePanelFragment : DialogFragment() {
     private lateinit var themeText: TextView
     private lateinit var themeColor: View
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return Dialog(requireContext(), android.R.style.Theme_DeviceDefault_NoActionBar).apply {
             window?.apply {
@@ -44,8 +40,7 @@ class SettingSidePanelFragment : DialogFragment() {
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val prefs = requireContext().getSharedPreferences("setting", Context.MODE_PRIVATE)
-        // 🔹 시스템 설정 인텐트 연결
+        // 시스템 설정 진입 버튼 연결
         mapOf(
             R.id.btn_network to Settings.ACTION_WIFI_SETTINGS,
             R.id.btn_device to Settings.ACTION_DEVICE_INFO_SETTINGS,
@@ -65,88 +60,57 @@ class SettingSidePanelFragment : DialogFragment() {
             }
         }
 
-        // 🔹 현재 테마 정보 UI
+        // 테마 정보 표시
         val themeRow = view.findViewById<View>(R.id.btn_theme_info)
         themeText = view.findViewById(R.id.text_current_theme)
         themeColor = view.findViewById(R.id.current_theme_color)
-        val switch = view.findViewById<Switch>(R.id.switch_auto_theme)
-        val isAutoThemeEnabled = prefs.getBoolean("use_weather_theme", true)
-        switch.isChecked = isAutoThemeEnabled
 
-        // 초기 테마 표시
+        // 현재 테마 표시
+        val prefs = requireContext().getSharedPreferences("setting", Context.MODE_PRIVATE)
         val themeCode = prefs.getInt("selected_theme_code", 800)
         val themeWithLed = getThemeForWeather(themeCode)
         themeText.text = "현재 테마: $themeCode (${themeWithLed.name})"
         themeColor.background = themeWithLed.theme.backgroundGradient
 
-        // UI 상태 반영
-        themeRow.isEnabled = isAutoThemeEnabled
-        themeRow.alpha = if (isAutoThemeEnabled) 1.0f else 0.3f
-
-        // 스위치 동작
-        switch.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("use_weather_theme", isChecked).apply()
-
-            themeRow.isEnabled = isChecked
-            themeRow.alpha = if (isChecked) 1.0f else 0.3f
-
-            if (!isChecked) {
-                val fixed = prefs.getInt("selected_theme_code", 800)
-                val fixedTheme = getThemeForWeather(fixed)
-                applyTheme(fixedTheme)
-            } else {
-                val current = getThemeForWeather(prefs.getInt("selected_theme_code", 800))
-                applyTheme(current)
-            }
-        }
-
-        view.findViewById<View>(R.id.row_auto_theme_toggle).setOnClickListener {
-            val newState = !switch.isChecked
-            switch.isChecked = newState // 체크 상태 변경
-        }
-
-
-
-        // 테마 다이얼로그 열기
+        // 테마 선택 다이얼로그 열기
         themeRow.setOnClickListener {
-            if (switch.isChecked) {
-                showThemeSelectDialog(view)
-            } else {
-                Toast.makeText(context, "테마 고정 상태입니다", Toast.LENGTH_SHORT).show()
-            }
+            showThemeSelectDialog(view)
         }
     }
 
-
     @RequiresApi(Build.VERSION_CODES.N)
     private fun showThemeSelectDialog(view: View) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val prefs = requireContext().getSharedPreferences("setting", Context.MODE_PRIVATE)
         val themeCodes = listOf(200, 300, 500, 600, 700, 800, 801)
+
         val themeNames = themeCodes.map { "$it - ${getThemeForWeather(it).name}" }
 
         AlertDialog.Builder(requireContext())
             .setTitle("테마 선택")
             .setItems(themeNames.toTypedArray()) { _, which ->
                 val selected = themeCodes[which]
+                // UI 표시용으로만 저장 (앱 재시작 시 덮어쓰기됨)
                 prefs.edit().putInt("selected_theme_code", selected).apply()
-
                 val selectedTheme = getThemeForWeather(selected)
+
+                // UI 반영
                 view.findViewById<TextView>(R.id.text_current_theme).text =
                     "현재 테마: $selected (${selectedTheme.name})"
                 view.findViewById<View>(R.id.current_theme_color)
                     .background = selectedTheme.theme.backgroundGradient
 
-                if (prefs.getBoolean("use_weather_theme", true)) {
-                    applyTheme(selectedTheme)
-                }
+                Log.d("Selected Theme", "${selectedTheme.name}")
+                // 테마 적용
+                applyTheme(selectedTheme, selected)
             }
             .show()
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun applyTheme(themeWithLed: WeatherThemeWithLed) {
+    private fun applyTheme(themeWithLed: WeatherThemeWithLed, weatherCode:Int) {
         val activity = activity as? MainActivity ?: return
-        activity.setWeatherTheme(themeWithLed.theme)
+        activity.setWeatherTheme(themeWithLed.theme, weatherCode)
+        activity.updateWeatherCardAnimationOnly(themeWithLed.animationResId)
         activity.ledService.setLedColor(
             themeWithLed.ledColor.first,
             themeWithLed.ledColor.second,
@@ -158,7 +122,8 @@ class SettingSidePanelFragment : DialogFragment() {
         super.onResume()
         updateThemeInfo()
     }
-    fun updateThemeInfo(){
+
+    fun updateThemeInfo() {
         val prefs = requireContext().getSharedPreferences("setting", Context.MODE_PRIVATE)
         val themeCode = prefs.getInt("selected_theme_code", 800)
         val themeWithLed = getThemeForWeather(themeCode)

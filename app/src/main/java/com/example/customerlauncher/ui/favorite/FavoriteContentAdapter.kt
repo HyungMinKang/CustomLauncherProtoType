@@ -17,6 +17,7 @@ import org.json.JSONArray
 
 class FavoriteItemAdapter(
     private val pm: PackageManager,
+    var textColor: Int,
     private val onAppClick: (ResolveInfo) -> Unit,
     private val onContentClick: (FavoriteContent) -> Unit
 ) : RecyclerView.Adapter<FavoriteItemAdapter.FavoriteViewHolder>() {
@@ -51,6 +52,7 @@ class FavoriteItemAdapter(
                     val info = item.resolveInfo
                     image.setImageDrawable(info.loadIcon(pm))
                     title.text = info.loadLabel(pm)
+                    title.setTextColor(textColor)
                     itemView.setOnClickListener { onAppClick(info) }
                 }
                 is FavoriteItem.Content -> {
@@ -60,6 +62,7 @@ class FavoriteItemAdapter(
                         .placeholder(R.drawable.placeholder)
                         .into(image)
                     title.text = content.title
+                    title.setTextColor(textColor)
                     itemView.setOnClickListener { onContentClick(content) }
                 }
             }

@@ -1,5 +1,6 @@
 package com.example.customerlauncher
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import androidx.leanback.widget.HorizontalGridView
 import com.example.customerlauncher.ui.main.ContentAdapter
 import com.example.customerlauncher.ui.main.ContentAdapter.ContentData
+import com.example.customerlauncher.ui.main.MainActivity
 
 class ContentFragment : Fragment() {
 
@@ -25,7 +27,8 @@ class ContentFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        val theme = (activity as? MainActivity)?.getCurrentTheme()
+        val textColor = if (theme?.isDarkText == true) Color.BLACK else Color.WHITE
         val contentList = listOf(
             ContentData("Interstellar", "https://image.tmdb.org/t/p/w500/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"),
             ContentData("The Dark Knight", "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"),
@@ -35,7 +38,7 @@ class ContentFragment : Fragment() {
             ContentData("Dune", "https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4")
         )
 
-        contentAdapter = ContentAdapter(this,contentList)
+        contentAdapter = ContentAdapter(this,contentList, textColor)
         videoGridView.adapter = contentAdapter
         videoGridView.setHasFixedSize(true)
     }
