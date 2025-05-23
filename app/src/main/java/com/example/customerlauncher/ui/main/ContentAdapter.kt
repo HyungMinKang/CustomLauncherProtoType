@@ -2,7 +2,6 @@ package com.example.customerlauncher.ui.main
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,13 +18,10 @@ import com.example.customerlauncher.VideoPlayerActivity
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ContentAdapter(private val fragment: ContentFragment, private val contentList: List<ContentData>, var textColor: Int) :
-    RecyclerView.Adapter<ContentAdapter.ContentViewHolder>() {
+class ContentAdapter(private val fragment: ContentFragment, private val contentList: List<ContentData>, var textColor: Int) : RecyclerView.Adapter<ContentAdapter.ContentViewHolder>() {
 
-    private val prefs = fragment.requireContext().getSharedPreferences("favorites", android.content.Context.MODE_PRIVATE)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentViewHolder {
-        val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_content, parent, false)
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_content, parent, false)
         return ContentViewHolder(itemView)
     }
 
@@ -41,14 +37,6 @@ class ContentAdapter(private val fragment: ContentFragment, private val contentL
             .skipMemoryCache(false)                     // 🔁 메모리 캐시도 비활성화
             .into(holder.thumbnailImageView)
 
-        holder.itemView.setOnFocusChangeListener { v, hasFocus ->
-            v.animate()
-                .scaleX(if (hasFocus) 1.1f else 1.0f)
-                .scaleY(if (hasFocus) 1.1f else 1.0f)
-                .setDuration(200)
-                .start()
-        }
-
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, VideoPlayerActivity::class.java)
             intent.putExtra("videoUri", contentData.videoUrl)
@@ -62,27 +50,20 @@ class ContentAdapter(private val fragment: ContentFragment, private val contentL
             val array = JSONArray(jsonStr)
 
             // 이미 존재하는지 확인
-            var foundIndex = -1
+            var alreadyExists = false
             for (i in 0 until array.length()) {
                 val obj = array.getJSONObject(i)
                 if (obj.getString("title") == contentData.title) {
-                    foundIndex = i
+                    alreadyExists = true
                     break
                 }
             }
 
             val message: String
 
-            if (foundIndex >= 0) {
-                // 즐겨찾기 해제
-                val newArray = JSONArray()
-                for (i in 0 until array.length()) {
-                    if (i != foundIndex) newArray.put(array.getJSONObject(i))
-                }
-                prefs.edit().putString(key, newArray.toString()).apply()
-                message = "☆ '${contentData.title}' 즐겨찾기에서 제거됨"
+            if (alreadyExists) {
+                message = "이미 '${contentData.title}'은(는) 즐겨찾기에 등록되어 있습니다"
             } else {
-                // 즐겨찾기 추가
                 val obj = JSONObject().apply {
                     put("title", contentData.title)
                     put("thumbnailUrl", contentData.thumbnailUrl)

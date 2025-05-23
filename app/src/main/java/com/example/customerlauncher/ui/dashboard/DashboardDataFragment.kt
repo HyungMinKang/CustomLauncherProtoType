@@ -47,11 +47,7 @@ class DashboardDataFragment : Fragment() {
         networkReceiver = object : BroadcastReceiver() {
             private var lastConnected = true // 연결 상태 변화 감지를 위해 사용
 
-
-            override fun onReceive(
-                context: Context?,
-                intent: Intent?
-            ) {
+            override fun onReceive(context: Context?, intent: Intent?) {
                 if (intent?.action == ConnectivityManager.CONNECTIVITY_ACTION) {
                     val isConnected = isNetworkConnected()
 

@@ -48,7 +48,6 @@ class OttFragment : Fragment() {
             },
             onLongClick = { app ->
                 val pkgName = app.activityInfo.packageName
-
                 val sharedPreferences = requireContext().getSharedPreferences("favorites", Context.MODE_PRIVATE)
                 val isFavorite = sharedPreferences.getBoolean(pkgName, false)
                 sharedPreferences.edit().putBoolean(pkgName, !isFavorite).apply()
@@ -56,7 +55,7 @@ class OttFragment : Fragment() {
                 val message = if (!isFavorite) {
                     "★ '$appName' 즐겨찾기에 추가됨"
                 } else {
-                    "☆ '$appName' 즐겨찾기에서 제거됨"
+                    "이미 '$appName'은(는) 즐겨찾기에 등록되어 있습니다"
                 }
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 true

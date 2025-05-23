@@ -92,7 +92,7 @@ class MainActivity : FragmentActivity() {
         setupTabClicks()
         observeWeather()
         startClockUpdate()
-        startAdcMonitoring()
+        //startAdcMonitoring()
 
     }
 
@@ -110,25 +110,23 @@ class MainActivity : FragmentActivity() {
             .commit()
     }
 
+    override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
+
+        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+            // 로그 출력 등으로 실제 동작 확인
+            Log.d("KeyLongPress", "OK 버튼 롱클릭 감지됨")
+            return true  // 시스템에 전달되지 않도록 소비
+
+        }
+        return super.onKeyLongPress(keyCode, event)
+
+    }
+
+
+
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
-            KeyEvent.KEYCODE_HOME -> {
-                findViewById<ImageView>(R.id.btn_content).apply {
-                    requestFocus()
-                    performClick()
-                }
-                return true
-            }
-
-            KeyEvent.KEYCODE_SETTINGS -> {
-                findViewById<ImageView>(R.id.btn_setting).apply {
-                    requestFocus()
-                    performClick()
-                }
-                return true
-            }
-
             KeyEvent.KEYCODE_1 -> {
                 showDriverSelectDialog(this)
                 return true
@@ -153,50 +151,59 @@ class MainActivity : FragmentActivity() {
                 intent.component = ComponentName("com.example.posservice", "com.example.posservice.PoseService")
                 ContextCompat.startForegroundService(this, intent)
                 Toast.makeText(this, "PoseService 시작됨", Toast.LENGTH_SHORT).show()
-//                val intent = Intent()
-//                intent.component = ComponentName("com.example.posservice", "com.example.posservice.PoseService")
-//                ContextCompat.startForegroundService(this, intent)
-//                Toast.makeText(this, "PoseService 시작됨", Toast.LENGTH_SHORT).show()
                 startExternalPoseService()
-                Toast.makeText(this, "PoseService 시작됨", Toast.LENGTH_LONG).show()
                 Log.i("service", "service call")
             }
 
             KeyEvent.KEYCODE_6 ->{
                 stopExternalPoseService()
-                Toast.makeText(this, "PoseService 종료됨", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "PoseService 종료됨", Toast.LENGTH_SHORT).show()
                 Log.i("service", "service stop call")
             }
             KeyEvent.KEYCODE_7 ->{
-                finish()
-                return true;
+                startAdcMonitoring()
             }
             KeyEvent.KEYCODE_8->{
-                ledService.setDriverType("aw21036")
-                val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
-                ledService.setLedColor(
-                    themeWithLed.ledColor.first,
-                    themeWithLed.ledColor.second,
-                    themeWithLed.ledColor.third
-                )
+                lifecycleScope.launch {
+                    ledService.setDriverType("aw21036")
+                    findViewById<TextView>(R.id.tv_driver_type).text = "드라이버: AW21036"
+                    val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
+                    delay(300)
+                    ledService.setLedColor(
+                        themeWithLed.ledColor.first,
+                        themeWithLed.ledColor.second,
+                        themeWithLed.ledColor.third
+                    )
+                }
+
             }
             KeyEvent.KEYCODE_9 -> {
-                ledService.setDriverType("aw20072")
-                val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
-                ledService.setLedColor(
-                    themeWithLed.ledColor.first,
-                    themeWithLed.ledColor.second,
-                    themeWithLed.ledColor.third
-                )
+                lifecycleScope.launch {
+                    ledService.setDriverType("aw20072")
+                    findViewById<TextView>(R.id.tv_driver_type).text = "드라이버: AW20072"
+                    val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
+                    delay(300)
+                    ledService.setLedColor(
+                        themeWithLed.ledColor.first,
+                        themeWithLed.ledColor.second,
+                        themeWithLed.ledColor.third
+                    )
+                }
+
             }
             KeyEvent.KEYCODE_0 -> {
-                ledService.setDriverType("et6296y")
-                val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
-                ledService.setLedColor(
-                    themeWithLed.ledColor.first,
-                    themeWithLed.ledColor.second,
-                    themeWithLed.ledColor.third
-                )
+                lifecycleScope.launch {
+                    ledService.setDriverType("et6296y")
+                    findViewById<TextView>(R.id.tv_driver_type).text = "드라이버: ET6296Y"
+                    val themeWithLed = getThemeForWeather(themeCodes[currentThemeIndex])
+                    delay(300)
+                    ledService.setLedColor(
+                        themeWithLed.ledColor.first,
+                        themeWithLed.ledColor.second,
+                        themeWithLed.ledColor.third
+                    )
+                }
+
             }
 
         }
@@ -219,7 +226,7 @@ class MainActivity : FragmentActivity() {
                 ledService = ILedDriverControl.Stub.asInterface(binder)
 
                 ledService.readAdcSub()
-//                ledService.setDriverType("aw21036")
+                ledService.setDriverType("aw20072")
 
 
                 Log.d("LED", "AIDL service connected")
@@ -342,8 +349,7 @@ class MainActivity : FragmentActivity() {
             weatherCard.findViewById<TextView>(R.id.cityText).text = info.city
             weatherCard.findViewById<TextView>(R.id.humidityText).text = "습도 ${info.humidity}%"
             weatherCard.findViewById<TextView>(R.id.dateText).text = getLocalTimeFormat()
-            weatherCard.findViewById<TextView>(R.id.windText).text =
-                "바람: ${String.format("%.1f", info.windSpeed)} m/s"
+            weatherCard.findViewById<TextView>(R.id.windText).text = "바람: ${String.format("%.1f", info.windSpeed)} m/s"
             weatherCard.findViewById<LottieAnimationView>(R.id.weatherIcon).apply {
                 setAnimation(animationResId)
                 playAnimation()
@@ -382,8 +388,7 @@ class MainActivity : FragmentActivity() {
         801 -> 801..804
         else -> 0..1000  // fallback
     }
-
-    private fun startClockUpdate() {
+    fun startClockUpdate() {
         val clockTextView = findViewById<TextView>(R.id.clock)
         val handler = Handler(mainLooper)
         val updateTimeRunnable = object : Runnable {
@@ -395,72 +400,6 @@ class MainActivity : FragmentActivity() {
             }
         }
         handler.post(updateTimeRunnable)
-    }
-
-    private fun logTvPrograms() {
-        val projection = arrayOf(
-            TvContract.Programs._ID,
-            TvContract.Programs.COLUMN_TITLE,
-            TvContract.Programs.COLUMN_CHANNEL_ID,
-            TvContract.Programs.COLUMN_START_TIME_UTC_MILLIS,
-            TvContract.Programs.COLUMN_END_TIME_UTC_MILLIS
-        )
-
-        val cursor = contentResolver.query(
-            TvContract.Programs.CONTENT_URI,
-            projection,
-            null,
-            null,
-            null
-        )
-
-        cursor?.use {
-            Log.d("TV_PROGRAM", "총 ${cursor.count}개의 프로그램:")
-            while (it.moveToNext()) {
-                val id = it.getLong(0)
-                val title = it.getString(1)
-                val channelId = it.getLong(2)
-                Log.d("TV_PROGRAM", "프로그램 ID: $id, 제목: $title, 채널ID: $channelId")
-            }
-        } ?: Log.d("TV_PROGRAM", "프로그램 정보를 가져올 수 없습니다 (null cursor)")
-    }
-
-    private fun logTvInputs() {
-        val tvInputManager = getSystemService(Context.TV_INPUT_SERVICE) as TvInputManager
-        val inputList = tvInputManager.tvInputList
-        Log.d("TV_INPUT", "총 ${inputList.size}개의 TV 입력 존재:")
-        inputList.forEach {
-            Log.d("TV_INPUT", "ID: ${it.id}, Label: ${it.loadLabel(this)}")
-        }
-    }
-    private fun logTvChannels() {
-        val projection = arrayOf(
-            TvContract.Channels._ID,
-            TvContract.Channels.COLUMN_DISPLAY_NAME,
-            TvContract.Channels.COLUMN_INPUT_ID,
-            TvContract.Channels.COLUMN_TYPE
-        )
-
-        val uri: Uri = TvContract.Channels.CONTENT_URI
-
-        val cursor: Cursor? = contentResolver.query(
-            uri,
-            projection,
-            null,  // selection
-            null,  // selectionArgs
-            null   // sortOrder
-        )
-
-        cursor?.use {
-            Log.d("TV_CHANNEL", "총 ${cursor.count}개의 채널을 찾음")
-            while (it.moveToNext()) {
-                val id = it.getLong(0)
-                val name = it.getString(1)
-                val inputId = it.getString(2)
-                val type = it.getString(3)
-                Log.d("TV_CHANNEL", "채널 ID: $id, 이름: $name, 입력ID: $inputId, 타입: $type")
-            }
-        } ?: Log.d("TV_CHANNEL", "채널 정보를 가져올 수 없습니다 (null cursor)")
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -486,7 +425,7 @@ class MainActivity : FragmentActivity() {
             if (it is ThemeFragment) it.onThemeChanged(theme)
         }
         val current = WeatherThemeManager.getThemeForWeather(weatherCode)
-        Toast.makeText(this, "테마 변경: $weatherCode - ${current.name}", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "테마 변경: $weatherCode - ${current.name}", Toast.LENGTH_SHORT).show()
     }
 
     fun getCurrentTheme(): WeatherTheme? {
@@ -515,23 +454,12 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun View.applyFocusAnimation(scale: Float = 1.05f) {
-        this.setOnFocusChangeListener { v, hasFocus ->
-            v.animate()
-                .scaleX(if (hasFocus) scale else 1.0f)
-                .scaleY(if (hasFocus) scale else 1.0f)
-                .setDuration(150)
-                .start()
-        }
-    }
-
     private fun initTabFocusAndAnimation() {
         val content = findViewById<LinearLayout>(R.id.btn_content)
         val weatherCard = findViewById<View>(R.id.weather_card)
         val dashboardContainer = findViewById<View>(R.id.dashboard_container)
         val allFocusableViews = listOf<View>(weatherCard, dashboardContainer)
         allFocusableViews.forEach { view ->
-            view.applyFocusAnimation()
             view.isFocusable = true
             view.isFocusableInTouchMode = true
         }
@@ -590,7 +518,6 @@ class MainActivity : FragmentActivity() {
         // 테마 코드 저장 (UI 확인용)
         prefs.edit().putInt("selected_theme_code", weatherCode).apply()
 
-        // 사용자 알림
 
     }
 
@@ -640,20 +567,13 @@ class MainActivity : FragmentActivity() {
                     1 -> {
                         Log.d("MainActivity", "왼손 감지 → 테마 변경")
                         cycleToNextWeatherTheme()
-                        context?.let {
-                            Toast.makeText(it, "왼손 감지, 테마 변경", Toast.LENGTH_LONG).show()
-                        }
                     }
                     2 -> {
-                        Log.d("MainActivity", "오른손 감지 → 볼륨 낮춤 ")
-                        context?.let {
-                            Toast.makeText(it, "오른손 감지, 볼륨 DOWN", Toast.LENGTH_LONG).show()
-                        }                    }
+                        Log.d("MainActivity", "오른손 감지 → 볼륨 낮춤 ") }
                     3 -> {
                         Log.d("MainActivity", "양손 감지 → 볼륨 높임 ")
-                        context?.let {
-                            Toast.makeText(it, "양손 감지, 볼륨 UP", Toast.LENGTH_LONG).show()
-                        }                    }
+
+                    }
                     else -> {
                         Log.w("MainActivity", "알 수 없는 제스처 수신: $gestureType")
                     }

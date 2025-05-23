@@ -22,6 +22,6 @@
     <string name="dashboard_tv_storage">저장공간: 확인 중</string>
     <string name="dashboard_tv_ip">IP 주소: ---</string>
     <string name="dashboard_tv_adc">조도: ---</string>
-    <string name="dashboard_tv_driver">드라이버: aw21036</string>
+    <string name="dashboard_tv_driver">드라이버: AW20072</string>
     <string name="dashboard_tv_networkstatus">네트워크 상태: 확인 중</string>
 </resources>

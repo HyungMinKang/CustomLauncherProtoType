@@ -37,15 +37,6 @@ class OttAdapter(
         holder.itemView.setOnClickListener { onClick(app) }
         holder.itemView.setOnLongClickListener { onLongClick(app) }
 
-        // 포커스 애니메이션
-        holder.itemView.setOnFocusChangeListener { v, hasFocus ->
-            v.isSelected = hasFocus // selector 작동
-            v.animate()
-                .scaleX(if (hasFocus) 1.05f else 1.0f)
-                .scaleY(if (hasFocus) 1.05f else 1.0f)
-                .setDuration(150)
-                .start()
-        }
     }
 
     override fun getItemCount(): Int = apps.size

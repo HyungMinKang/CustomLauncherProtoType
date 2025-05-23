@@ -8,25 +8,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.customerlauncher.R
 import com.example.customerlauncher.domain.model.FavoriteContent
 import org.json.JSONArray
 
-class FavoriteItemAdapter(
-    private val pm: PackageManager,
-    var textColor: Int,
-    private val onAppClick: (ResolveInfo) -> Unit,
-    private val onContentClick: (FavoriteContent) -> Unit
-) : RecyclerView.Adapter<FavoriteItemAdapter.FavoriteViewHolder>() {
+class FavoriteItemAdapter(private val pm: PackageManager, var textColor: Int, private val onAppClick: (ResolveInfo) -> Unit, private val onContentClick: (FavoriteContent) -> Unit) : RecyclerView.Adapter<FavoriteItemAdapter.FavoriteViewHolder>() {
 
     private val items = mutableListOf<FavoriteItem>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoriteViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_favorite_content, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_favorite_content, parent, false)
         return FavoriteViewHolder(view)
     }
 
@@ -54,6 +47,19 @@ class FavoriteItemAdapter(
                     title.text = info.loadLabel(pm)
                     title.setTextColor(textColor)
                     itemView.setOnClickListener { onAppClick(info) }
+                    itemView.setOnLongClickListener {
+                        val context = itemView.context
+                        val pkg = info.activityInfo.packageName
+                        val sharedPrefs = context.getSharedPreferences("favorites", Context.MODE_PRIVATE)
+                        sharedPrefs.edit().remove(pkg).apply()
+                        val pos = adapterPosition
+                        if (pos != RecyclerView.NO_POSITION) {
+                            items.removeAt(pos)
+                            notifyItemRemoved(pos)
+                        }
+
+                        true
+                    }
                 }
                 is FavoriteItem.Content -> {
                     val content = item.content
@@ -64,6 +70,29 @@ class FavoriteItemAdapter(
                     title.text = content.title
                     title.setTextColor(textColor)
                     itemView.setOnClickListener { onContentClick(content) }
+                    itemView.setOnLongClickListener {
+                        val context = itemView.context
+                        val sharedPrefs = context.getSharedPreferences("favorites_content", Context.MODE_PRIVATE)
+                        val json = sharedPrefs.getString("favorite_content_list", "[]") ?: "[]"
+                        val array = JSONArray(json)
+                        val newArray = JSONArray()
+                        for (i in 0 until array.length()) {
+                            val obj = array.getJSONObject(i)
+                            if (obj.getString("videoUrl") != content.videoUrl) {
+                                newArray.put(obj)
+                            }
+                        }
+
+                        sharedPrefs.edit().putString("favorite_content_list", newArray.toString()).apply()
+
+                        val pos = adapterPosition
+                        if (pos != RecyclerView.NO_POSITION) {
+                            items.removeAt(pos)
+                            notifyItemRemoved(pos)
+                        }
+
+                        true
+                    }
                 }
             }
         }

@@ -12,6 +12,7 @@
     android:padding="10dp"
     android:orientation="vertical"
     android:gravity="start"
+    android:background="@drawable/focus_selector"
     android:nextFocusDown="@id/fragment_container"
     android:focusable="true"
     android:focusableInTouchMode="true"
